@@ -4,17 +4,17 @@ import Case from '@/models/Case';
 
 export const dynamic = 'force-dynamic';
 
+// --- ฟังก์ชันยิงแจ้งเตือนเข้ากลุ่มไลน์ ---
 async function sendLineMessage(textMessage: string) {
   const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-  const groupId = process.env.LINE_GROUP_ID; // 👈 เพิ่มตัวแปรรับรหัสกลุ่ม
+  const groupId = process.env.LINE_GROUP_ID; 
 
   if (!token || !groupId) {
-    console.log('❌ ขาด Token หรือ Group ID ในไฟล์ .env');
+    console.log('❌ ขาด Token หรือ Group ID ใน Environment Variables');
     return; 
   }
 
   try {
-    // เปลี่ยนจาก broadcast เป็น push
     const response = await fetch('https://api.line.me/v2/bot/message/push', {
       method: 'POST',
       headers: {
@@ -22,13 +22,13 @@ async function sendLineMessage(textMessage: string) {
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify({
-        to: groupId, // 👈 สั่งให้ส่งตรงเข้ากลุ่มนี้เลย
+        to: groupId,
         messages: [{ type: 'text', text: textMessage }]
       })
     });
     
     const result = await response.json();
-    console.log('🟢 สถานะส่งเข้ากลุ่ม:', response.status, result);
+    console.log('🟢 Line Notification Status:', response.status, result);
   } catch (error) {
     console.error('🔴 Line Bot Error:', error);
   }
@@ -44,8 +44,6 @@ export async function GET(req: Request) {
   if (date && monthYear) {
     query.date = parseInt(date);
     query.monthYear = monthYear;
-  } else if (!date && !monthYear) {
-    query = {};
   }
 
   try {
@@ -63,7 +61,8 @@ export async function POST(req: Request) {
     const { actionBy, ...caseData } = body; 
     const newCase = await Case.create(caseData);
     
-    const msg = `🟢 [เพิ่มคิวผ่าตัดใหม่]\nผู้ทำรายการ: ${actionBy}\n\n📅 วันที่: ${newCase.date} ${newCase.monthYear}\n⏰ เวลา: ${newCase.time} น.\n🚪 ห้อง: ${newCase.room}\n👤 คนไข้: ${newCase.name}\n🔪 Operation: ${newCase.operation}`;
+    // แจ้งเตือนเมื่อเพิ่มเคส
+    const msg = `🟢 [เพิ่มคิวผ่าตัดใหม่]\nผู้ทำรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\n📅 วันที่: ${newCase.date} ${newCase.monthYear}\n⏰ เวลา: ${newCase.time} น.\n🚪 ห้อง: ${newCase.room}\n👤 คนไข้: ${newCase.name}\n🔪 Operation: ${newCase.operation}`;
     await sendLineMessage(msg);
 
     return NextResponse.json({ success: true, data: newCase });
@@ -79,7 +78,8 @@ export async function PUT(req: Request) {
     const { _id, actionBy, ...updateData } = body;
     const updatedCase = await Case.findByIdAndUpdate(_id, updateData, { new: true });
     
-    const msg = `🟡 [อัปเดตข้อมูลคิว]\nผู้ทำรายการ: ${actionBy}\n\n👤 คนไข้: ${updatedCase.name}\n⏰ เวลา: ${updatedCase.time} น. (ห้อง ${updatedCase.room})\n⚠️ สถานะ: ${updatedCase.status}`;
+    // แจ้งเตือนเมื่อแก้ไขข้อมูล
+    const msg = `🟡 [อัปเดตข้อมูลคิว]\nผู้ทำรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\n👤 คนไข้: ${updatedCase.name}\n⏰ เวลา: ${updatedCase.time} น. (ห้อง ${updatedCase.room})\n⚠️ สถานะ: ${updatedCase.status}`;
     await sendLineMessage(msg);
 
     return NextResponse.json({ success: true, data: updatedCase });
@@ -97,9 +97,11 @@ export async function DELETE(req: Request) {
     const patientName = searchParams.get('name');
     
     if (!id) return NextResponse.json({ success: false, message: 'Missing ID' }, { status: 400 });
+    
     await Case.findByIdAndDelete(id);
 
-    const msg = `🔴 [ลบรายการผ่าตัด]\nผู้ลบรายการ: ${actionBy}\n\nลบข้อมูลคนไข้ชื่อ: ${patientName}`;
+    // แจ้งเตือนเมื่อมีการลบ
+    const msg = `🔴 [ลบรายการผ่าตัด]\nผู้ลบรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\nลบข้อมูลคนไข้ชื่อ: ${patientName || 'ไม่ทราบชื่อ'}`;
     await sendLineMessage(msg);
 
     return NextResponse.json({ success: true, message: 'Deleted successfully' });
