@@ -388,6 +388,40 @@ export default function ScheduleBoard() {
         </div>
       )}
 
+      {/* 🚀 ย้ายกล่อง Widget มาไว้ตรงนี้ (ด้านบนตาราง) */}
+      {isTVMode && activeCases.length > 0 && (
+        <div className="w-full flex justify-center gap-4 shrink-0 mb-3 px-2 z-10 overflow-hidden">
+          {activeCases.map((ac, idx) => (
+             <div key={idx} className="bg-white border border-gray-200 shadow-md rounded-2xl p-3 flex-1 min-w-[250px] max-w-[400px] border-l-8 border-l-[#c2e2c6]">
+               <div className="flex justify-between items-center mb-1">
+                 <div className="flex items-center gap-2">
+                   <div className="w-2.5 h-2.5 bg-[#c2e2c6] rounded-full animate-pulse shadow-[0_0_6px_#c2e2c6]"></div>
+                   <span className="text-sm font-black text-[#8db8b9] tracking-widest">เวลา {ac.time} น.</span>
+                 </div>
+                 <div className="bg-blue-100 text-blue-800 text-[11px] font-black px-2 py-0.5 rounded-md border border-blue-200">
+                   ห้อง {ac.room || '1'}
+                 </div>
+               </div>
+               <div className="text-xl font-black text-[#4a2b38] truncate mb-2">คุณ {ac.name}</div>
+               <div className="flex justify-between items-center border-t border-gray-100 pt-1.5">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase">Surgeon</span>
+                 <span className="text-xs font-bold text-gray-800 truncate max-w-[180px] text-right">{ac.surgeon || '-'}</span>
+               </div>
+               {ac.team && (
+                 <div className="flex justify-between items-center mt-0.5">
+                   <span className="text-[10px] font-bold text-gray-400 uppercase">Team</span>
+                   <span className="text-xs font-bold text-gray-700 truncate max-w-[180px] text-right">{ac.team}</span>
+                 </div>
+               )}
+               <div className="flex justify-between items-center mt-0.5">
+                 <span className="text-[10px] font-bold text-gray-400 uppercase">Op</span>
+                 <span className="text-xs font-bold text-gray-800 truncate max-w-[180px] text-right">{ac.operation || '-'}</span>
+               </div>
+             </div>
+          ))}
+        </div>
+      )}
+
       {!isTVMode && (
         <>
           <div className="flex justify-between items-start mb-4">
@@ -528,39 +562,6 @@ export default function ScheduleBoard() {
         </table>
       </div>
 
-      {isTVMode && activeCases.length > 0 && (
-        <div className="w-full pt-3 flex justify-center gap-4 shrink-0 pb-1 px-2 z-10 overflow-hidden">
-          {activeCases.map((ac, idx) => (
-             <div key={idx} className="bg-white border border-gray-200 shadow-md rounded-2xl p-3 flex-1 min-w-[250px] max-w-[400px] border-l-8 border-l-[#c2e2c6]">
-               <div className="flex justify-between items-center mb-1">
-                 <div className="flex items-center gap-2">
-                   <div className="w-2.5 h-2.5 bg-[#c2e2c6] rounded-full animate-pulse shadow-[0_0_6px_#c2e2c6]"></div>
-                   <span className="text-sm font-black text-[#8db8b9] tracking-widest">เวลา {ac.time} น.</span>
-                 </div>
-                 <div className="bg-blue-100 text-blue-800 text-[11px] font-black px-2 py-0.5 rounded-md border border-blue-200">
-                   ห้อง {ac.room || '1'}
-                 </div>
-               </div>
-               <div className="text-xl font-black text-[#4a2b38] truncate mb-2">คุณ {ac.name}</div>
-               <div className="flex justify-between items-center border-t border-gray-100 pt-1.5">
-                 <span className="text-[10px] font-bold text-gray-400 uppercase">Surgeon</span>
-                 <span className="text-xs font-bold text-gray-800 truncate max-w-[180px] text-right">{ac.surgeon || '-'}</span>
-               </div>
-               {ac.team && (
-                 <div className="flex justify-between items-center mt-0.5">
-                   <span className="text-[10px] font-bold text-gray-400 uppercase">Team</span>
-                   <span className="text-xs font-bold text-gray-700 truncate max-w-[180px] text-right">{ac.team}</span>
-                 </div>
-               )}
-               <div className="flex justify-between items-center mt-0.5">
-                 <span className="text-[10px] font-bold text-gray-400 uppercase">Op</span>
-                 <span className="text-xs font-bold text-gray-800 truncate max-w-[180px] text-right">{ac.operation || '-'}</span>
-               </div>
-             </div>
-          ))}
-        </div>
-      )}
-
       {!isTVMode && (
         <>
           <a href="?tv=true" target="_blank" rel="noopener noreferrer" className="fixed bottom-10 left-10 bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_10px_20px_rgba(212,180,221,0.6)] transition-all cursor-pointer flex items-center gap-3 hover:scale-105 z-50 border-2 border-white text-lg">
@@ -588,9 +589,8 @@ export default function ScheduleBoard() {
                }} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
              </div>
              
-             {/* 👇 ลบคำว่า disabled ออกเกลี้ยงแล้วครับ พิมพ์แก้รหัสได้แน่นอน 👇 */}
              <form onSubmit={handleAddOrEditEmployee} className="flex flex-wrap gap-2 md:gap-3 mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-center">
-               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[160px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
+               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} disabled={isEditingEmp} placeholder="รหัสพนักงาน" className={`w-[120px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${isEditingEmp ? 'bg-gray-200 cursor-not-allowed text-gray-500' : 'bg-white'}`} required />
                
                <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="flex-1 min-w-[140px] border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
                
