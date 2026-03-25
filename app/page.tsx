@@ -268,10 +268,11 @@ export default function ScheduleBoard() {
       const newMonthYear = `${year}-${month}`;
       const newDateNum = parseInt(day, 10);
       const oldDateStr = editingCase && editingCase.monthYear && editingCase.date ? `${editingCase.monthYear}-${String(editingCase.date).padStart(2, '0')}` : '';
+      
       const payloadData = { 
         ...formData, 
         room: formData.room || '1',
-        actionBy: currentUser.name || currentUser.empId
+        actionBy: currentUser.name || currentUser.empId 
       };
 
       if (editingCase && formData.status === 'เลื่อนวัน' && formData.surgeryDate !== oldDateStr) {
@@ -587,9 +588,9 @@ export default function ScheduleBoard() {
                }} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
              </div>
              
-             {/* 🛑 จุดที่แก้ไข: ถอด disabled ออกจาก input รหัสพนักงานแล้วครับ */}
+             {/* 👇 ลบคำว่า disabled ออกเกลี้ยงแล้วครับ พิมพ์แก้รหัสได้แน่นอน 👇 */}
              <form onSubmit={handleAddOrEditEmployee} className="flex flex-wrap gap-2 md:gap-3 mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-center">
-               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[120px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
+               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[160px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
                
                <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="flex-1 min-w-[140px] border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
                
