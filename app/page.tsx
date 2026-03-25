@@ -399,7 +399,7 @@ export default function ScheduleBoard() {
                    <span className="text-sm font-black text-[#8db8b9] tracking-widest">เวลา {ac.time} น.</span>
                  </div>
                  <div className="bg-blue-100 text-blue-800 text-[11px] font-black px-2 py-0.5 rounded-md border border-blue-200">
-                   ห้อง {ac.room || '1'}
+                   OR {ac.room || '1'}
                  </div>
                </div>
                <div className="text-xl font-black text-[#4a2b38] truncate mb-2">คุณ {ac.name}</div>
@@ -478,7 +478,7 @@ export default function ScheduleBoard() {
             <tr style={isTVMode ? { height: '4.76%' } : {}}>
               {isTVMode ? (
                 <>
-                  <th className={`${tvThClass} w-12 text-blue-800`}>ห้อง</th>
+                  <th className={`${tvThClass} w-12 text-blue-800`}>OR</th>
                   <th className={`${tvThClass} w-16 text-purple-800`}>เวลา</th>
                   <th className={`${tvThClass} w-[15%]`}>ชื่อ-สกุล</th>
                   <th className={`${tvThClass} w-20`}>HN</th>
@@ -496,7 +496,7 @@ export default function ScheduleBoard() {
                   <th className={`${normThClass} w-16 bg-status-confirm`}>ยืนยัน<br/>{displayCases.filter(c=>c.status==='ยืนยัน').length}</th>
                   <th className={`${normThClass}`}>คิว</th>
                   <th className={`${normThClass}`}>เวลา</th>
-                  <th className={`${normThClass} text-blue-800`}>ห้อง</th>
+                  <th className={`${normThClass} text-blue-800`}>OR</th>
                   <th className={`${normThClass} min-w-[200px]`}>ชื่อ-สกุล</th>
                   <th className={`${normThClass}`}>อายุ</th>
                   <th className={`${normThClass}`}>HN</th>
@@ -663,7 +663,7 @@ export default function ScheduleBoard() {
                      <tr className="text-[#4a2b38]">
                        <th className="p-2 md:p-3 border border-gray-300">วันที่</th>
                        <th className="p-2 md:p-3 border border-gray-300">เวลา</th>
-                       <th className="p-2 md:p-3 border border-gray-300 text-blue-800">ห้อง</th>
+                       <th className="p-2 md:p-3 border border-gray-300 text-blue-800">OR</th>
                        <th className="p-2 md:p-3 border border-gray-300">HN</th>
                        <th className="p-2 md:p-3 border border-gray-300 text-left">ชื่อ-สกุล</th>
                        <th className="p-2 md:p-3 border border-gray-300 text-left">Operation</th>
@@ -703,7 +703,7 @@ export default function ScheduleBoard() {
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
                
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                 <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / ห้อง</label>
+                 <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / OR</label>
                  <div className="flex w-full sm:flex-1 gap-2">
                    <input type="time" name="time" value={formData.time} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono font-bold" required />
                    <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-24 sm:w-28 bg-blue-50 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none font-bold cursor-pointer">
