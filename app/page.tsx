@@ -331,7 +331,8 @@ export default function ScheduleBoard() {
     (emp.name && emp.name.includes(empSearchQuery))
   );
 
-  const tvThClass = "border border-gray-300 p-1.5 text-sm font-bold whitespace-nowrap text-[#4a2b38] bg-[#f3eff4]";
+  // const tvThClass = "border border-gray-300 p-1.5 text-sm font-bold whitespace-nowrap text-[#4a2b38] bg-[#f3eff4]";
+  const tvThClass = "border border-gray-300 p-3 text-xl font-black whitespace-nowrap text-[#4a2b38] bg-[#f3eff4]";
   const normThClass = "border border-gray-300 p-2 px-4 whitespace-nowrap text-[#4a2b38] bg-[#f3eff4]";
   const th = (base: string) => `${isTVMode ? tvThClass : normThClass} ${base}`;
 
@@ -367,18 +368,18 @@ export default function ScheduleBoard() {
       {isTVMode && (
         <div className="flex justify-between items-center mb-2 px-2 h-[8vh] shrink-0">
           <div className="flex items-center gap-4">
-            <h1 className="text-2xl font-black text-[#4a2b38] bg-or-header px-5 py-2 rounded-xl border border-gray-200 shadow-sm">
+            <h1 className="text-4xl font-black text-[#4a2b38] bg-or-header px-5 py-2 rounded-xl border border-gray-200 shadow-sm">
               แผนกผ่าตัด รพ.กรุงเทพอุดร
             </h1>
             <div className="bg-white border border-gray-200 px-4 py-2 rounded-xl shadow-sm flex items-center gap-3">
               <span className="text-sm font-bold text-gray-500">เคสจองวันนี้</span>
-              <span className="text-2xl font-black text-green-600">{displayCases.filter(c=>c.status==='ยืนยัน').length}</span>
+              <span className="text-4xl font-black text-green-600">{displayCases.filter(c=>c.status==='ยืนยัน').length}</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="bg-white border border-gray-200 px-5 py-1.5 rounded-xl shadow-sm flex items-center gap-4">
               <span className="text-base font-bold text-gray-500">{currentDateText}</span>
-              <span className="text-3xl font-black text-[#4a2b38] font-mono tracking-widest">{currentTimeText}</span>
+              <span className="text-5xl font-black text-[#4a2b38] font-mono tracking-widest">{currentTimeText}</span>
             </div>
             <button onClick={() => window.close()} className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors cursor-pointer">
               ❌ ปิดแท็บนี้
@@ -426,7 +427,7 @@ export default function ScheduleBoard() {
         <>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div className="bg-or-header rounded-2xl p-3 md:p-4 shadow-sm inline-block border border-gray-200 w-full md:w-auto text-center md:text-left">
-              <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร2</h1>
+              <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร</h1>
             </div>
             
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-200 w-full md:w-auto">
@@ -518,15 +519,17 @@ export default function ScheduleBoard() {
               <tr key={c._id || index} style={isTVMode ? { height: '4.76%' } : {}} className={`border-b border-gray-300 cursor-pointer ${!isTVMode && 'h-10'} ${c.status === 'ยกเลิก' ? 'bg-red-50 opacity-50' : c.status === 'เลื่อนวัน' ? 'bg-yellow-50 opacity-50' : 'hover:bg-[#fdfaf2]'}`} onClick={() => handleOpenModal(c)}>
                 {isTVMode ? (
                   <>
-                    <td className="border border-gray-300 font-black text-blue-700 text-sm">{c.room || '1'}</td>
+                    {/* <td className="border border-gray-300 font-black text-blue-700 text-sm">{c.room || '1'}</td> */}
+                    <td className="border border-gray-300 font-black text-blue-700 text-xl">{c.room || '1'}</td>
                     <td className="border border-gray-300 font-black text-[#b88bc9] text-sm">{c.time}</td>
-                    <td className="border border-gray-300 text-left px-3 font-bold text-[#4a2b38] text-sm truncate max-w-[180px]">{c.name}</td>
+                    {/* <td className="border border-gray-300 text-left px-3 font-bold text-[#4a2b38] text-sm truncate max-w-[180px]">{c.name}</td> */}
+                    <td className="border border-gray-300 text-left px-3 font-black text-2xl truncate max-w-[300px]">{c.name}</td>
                     <td className="border border-gray-300 font-mono text-sm">{c.hn}</td>
-                    <td className="border border-gray-300 text-xs px-2 truncate max-w-[120px]">{c.specialEquipment}</td>
+                    <td className="border border-gray-300 text-lg px-2 truncate max-w-[120px]">{c.specialEquipment}</td>
                     <td className="border border-gray-300 text-left text-xs px-2 truncate max-w-[150px]">{c.operation}</td>
-                    <td className="border border-gray-300 text-xs px-2 truncate max-w-[120px]">{c.surgeon}</td>
-                    <td className="border border-gray-300 text-xs px-2">{c.anesthesiologist}</td>
-                    <td className="border border-gray-300 text-xs px-2">{c.typeOfAnesth}</td>
+                    <td className="border border-gray-300 text-lg px-2 truncate max-w-[120px]">{c.surgeon}</td>
+                    <td className="border border-gray-300 text-lg px-2">{c.anesthesiologist}</td>
+                    <td className="border border-gray-300 text-lg px-2">{c.typeOfAnesth}</td>
                     <td className="border border-gray-300 text-[#4a2b38] text-xs px-2 truncate max-w-[100px]">{c.team}</td>
                   </>
                 ) : (
