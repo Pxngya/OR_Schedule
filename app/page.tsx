@@ -340,7 +340,7 @@ export default function ScheduleBoard() {
   if (!currentUser) {
     return (
       <div className="min-h-screen bg-[#fdfbf2] flex items-center justify-center p-4">
-        <div className="bg-white p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] w-full max-w-md border border-gray-100 relative overflow-hidden">
+        <div className="bg-white p-8 md:p-10 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] w-full max-w-md border border-gray-100 relative overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#d4b4dd] to-[#b88bc9]"></div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-black text-[#4a2b38] mb-2">เข้าสู่ระบบ</h1>
@@ -354,16 +354,14 @@ export default function ScheduleBoard() {
             {loginError && <div className="text-red-500 text-sm font-bold text-center bg-red-50 py-2 rounded-lg">{loginError}</div>}
             <button type="submit" className="w-full bg-[#4a2b38] text-white font-bold text-lg p-3 rounded-xl hover:bg-[#6e4356] transition-colors shadow-md">เข้าสู่ระบบ</button>
           </form>
-          <div className="mt-8 text-center text-xs text-gray-400">
-            *สำหรับผู้ดูแลระบบครั้งแรก ให้กรอกรหัส <span className="font-bold text-[#b88bc9]">admin</span>
-          </div>
+          {/* เอาข้อความแจ้งรหัส admin ออกไปแล้วครับ */}
         </div>
       </div>
     );
   }
 
   return (
-    <div className={`bg-[#fdfbf2] text-or-text relative ${isTVMode ? 'h-screen w-screen overflow-hidden p-2 flex flex-col' : 'min-h-screen p-4 pb-16'}`}>
+    <div className={`bg-[#fdfbf2] text-or-text relative ${isTVMode ? 'h-screen w-screen overflow-hidden p-2 flex flex-col' : 'min-h-screen p-2 md:p-4 pb-20'}`}>
       
       {/* 🟢 ส่วนที่ 1: Header ด้านบนสุด (TV Mode) */}
       {isTVMode && (
@@ -389,7 +387,7 @@ export default function ScheduleBoard() {
         </div>
       )}
 
-      {/* 🚀 🟢 ส่วนที่ 2: กล่อง Widget คิวต่อไป (ย้ายมาอยู่ตรงนี้ ด้านบนตาราง!) */}
+      {/* 🚀 🟢 ส่วนที่ 2: กล่อง Widget คิวต่อไป (TV Mode) */}
       {isTVMode && activeCases.length > 0 && (
         <div className="w-full flex justify-center gap-4 shrink-0 mb-3 px-2 z-10">
           {activeCases.map((ac, idx) => (
@@ -423,57 +421,58 @@ export default function ScheduleBoard() {
         </div>
       )}
 
-      {/* 🟢 ส่วนที่ 3: Header สำหรับโหมดแอดมิน (Non-TV Mode) */}
+      {/* 🟢 ส่วนที่ 3: Header สำหรับโหมดแอดมิน (Responsive ปรับให้พอดีมือถือ) */}
       {!isTVMode && (
         <>
-          <div className="flex justify-between items-start mb-4">
-            <div className="bg-or-header rounded-2xl p-4 shadow-sm inline-block border border-gray-200">
-              <h1 className="text-4xl font-bold mb-2 text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร</h1>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+            <div className="bg-or-header rounded-2xl p-3 md:p-4 shadow-sm inline-block border border-gray-200 w-full md:w-auto text-center md:text-left">
+              <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร</h1>
             </div>
             
-            <div className="flex items-center gap-3 bg-white p-2 rounded-xl shadow-sm border border-gray-200">
-              <div className="text-sm px-2">
+            <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-200 w-full md:w-auto">
+              <div className="text-sm px-2 w-full text-center md:w-auto md:text-left mb-1 md:mb-0">
                 ผู้ใช้: <span className="font-bold text-[#b88bc9]">{currentUser.name || currentUser.empId}</span> 
                 <span className="text-xs text-gray-400 ml-1">({currentUser.role})</span>
               </div>
-              <button onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2">
-                📥 โหลด Excel
+              <button onClick={exportToExcel} className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2 flex-1 md:flex-none justify-center">
+                📥 Excel
               </button>
               {currentUser.role === 'admin' && (
-                <button onClick={() => { fetchEmployees(); setIsAdminModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2">
+                <button onClick={() => { fetchEmployees(); setIsAdminModalOpen(true); }} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-2 flex-1 md:flex-none justify-center">
                   ⚙️ แอดมิน
                 </button>
               )}
-              <button onClick={handleLogout} className="bg-gray-100 hover:bg-red-100 hover:text-red-600 text-gray-600 px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer border border-gray-200">
-                ออกจากระบบ
+              <button onClick={handleLogout} className="bg-gray-100 hover:bg-red-100 hover:text-red-600 text-gray-600 px-3 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer border border-gray-200 flex-1 md:flex-none justify-center">
+                ออกระบบ
               </button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between mb-4 px-4 text-xl font-medium">
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between mb-4 px-2 md:px-4 text-base md:text-xl font-medium gap-3">
             <div className="flex items-center">
-              จำนวนเคสจองวันนี้ <span className="text-red-600 text-3xl font-bold mx-2">{displayCases.length}</span> เคส
+              จำนวนเคสจองวันนี้ <span className="text-red-600 text-2xl md:text-3xl font-bold mx-2">{displayCases.length}</span> เคส
             </div>
-            <div className="flex items-center gap-4">
-              <input type="month" value={currentMonthYear} onChange={(e) => setCurrentMonthYear(e.target.value)} className="border border-gray-300 rounded px-3 py-1 bg-white text-base h-[38px] shadow-sm" />
-              <form onSubmit={handleGlobalSearch} className="flex items-center gap-2">
-                 <input type="text" placeholder="ค้นหา HN หรือ ชื่อคนไข้" value={globalSearchQuery} onChange={(e) => setGlobalSearchQuery(e.target.value)} className="border border-[#d4b4dd] rounded-full px-5 py-1 w-72 bg-[#fdfbf2] focus:outline-none focus:ring-2 focus:ring-[#c29bce] text-base h-[38px] shadow-sm" />
-                 <button type="submit" className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-5 h-[38px] rounded-full text-base font-bold shadow-md transition-colors">{isSearching ? '...' : 'ค้นหา'}</button>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full lg:w-auto">
+              <input type="month" value={currentMonthYear} onChange={(e) => setCurrentMonthYear(e.target.value)} className="border border-gray-300 rounded px-3 py-1 bg-white h-[38px] shadow-sm w-full sm:w-auto text-base" />
+              <form onSubmit={handleGlobalSearch} className="flex items-center gap-2 w-full sm:w-auto">
+                 <input type="text" placeholder="ค้นหา HN หรือ ชื่อคนไข้" value={globalSearchQuery} onChange={(e) => setGlobalSearchQuery(e.target.value)} className="border border-[#d4b4dd] rounded-full px-5 py-1 w-full sm:w-64 md:w-72 bg-[#fdfbf2] focus:outline-none focus:ring-2 focus:ring-[#c29bce] text-base h-[38px] shadow-sm" />
+                 <button type="submit" className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-5 h-[38px] rounded-full text-base font-bold shadow-md transition-colors whitespace-nowrap">{isSearching ? '...' : 'ค้นหา'}</button>
               </form>
             </div>
           </div>
-          <div className="flex overflow-x-auto bg-or-table-head rounded-t-lg border border-b-0 border-gray-300 shadow-sm">
-            <div className="px-4 py-2 font-bold bg-or-table-head border-r border-gray-300 sticky left-0 z-10">วัน</div>
+          
+          <div className="flex overflow-x-auto bg-or-table-head rounded-t-lg border border-b-0 border-gray-300 shadow-sm hide-scrollbar">
+            <div className="px-3 md:px-4 py-2 font-bold bg-or-table-head border-r border-gray-300 sticky left-0 z-10 whitespace-nowrap">วัน</div>
             {[...Array(daysInMonth)].map((_, i) => (
-              <button key={i+1} onClick={() => setSelectedDate(i+1)} className={`px-4 py-2 min-w-[40px] border-r border-gray-300 ${selectedDate === i+1 ? 'bg-white text-[#b88bc9] rounded-t-md font-black shadow-[0_-3px_0_0_#b88bc9]' : 'hover:bg-[#fdfbf2]'}`}>{i+1}</button>
+              <button key={i+1} onClick={() => setSelectedDate(i+1)} className={`px-2 md:px-4 py-2 min-w-[36px] md:min-w-[40px] border-r border-gray-300 ${selectedDate === i+1 ? 'bg-white text-[#b88bc9] rounded-t-md font-black shadow-[0_-3px_0_0_#b88bc9]' : 'hover:bg-[#fdfbf2]'}`}>{i+1}</button>
             ))}
           </div>
         </>
       )}
 
-      {/* 🟢 ส่วนที่ 4: ตารางหลัก */}
-      <div className={`bg-white border border-gray-300 shadow-md flex-1 min-h-0 flex flex-col ${isTVMode ? 'rounded-lg overflow-hidden' : 'overflow-x-auto rounded-b-lg'}`}>
-        <table className={`w-full text-center border-collapse ${isTVMode ? 'flex-1 h-full' : ''}`}>
+      {/* 🟢 ส่วนที่ 4: ตารางหลัก (ปรับให้เลื่อนซ้ายขวาในมือถือได้) */}
+      <div className={`bg-white border border-gray-300 shadow-md flex-1 min-h-0 flex flex-col ${isTVMode ? 'rounded-lg overflow-hidden' : 'overflow-x-auto rounded-b-lg w-full'}`}>
+        <table className={`w-full text-center border-collapse ${isTVMode ? 'flex-1 h-full' : 'min-w-[1200px]'}`}>
           <thead>
             <tr style={isTVMode ? { height: '4.76%' } : {}}>
               {isTVMode ? (
@@ -504,7 +503,7 @@ export default function ScheduleBoard() {
                   <th className={`${normThClass} min-w-[150px]`}>Surgeon</th>
                   <th className={`${normThClass} min-w-[150px]`}>เครื่องมือพิเศษ</th>
                   <th className={`${normThClass}`}>Type Anesth</th>
-                  <th className={`${normThClass}`}>Anesthesiologist</th>
+                  <th className={`${normThClass}`}>Anesth.</th>
                   <th className={`${normThClass}`}>Date Book</th>
                   <th className={`${normThClass}`}>เวลารับ Set</th>
                   <th className={`${normThClass}`}>ผู้จอง</th>
@@ -567,96 +566,79 @@ export default function ScheduleBoard() {
 
       {!isTVMode && (
         <>
-          <a href="?tv=true" target="_blank" rel="noopener noreferrer" className="fixed bottom-10 left-10 bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_10px_20px_rgba(212,180,221,0.6)] transition-all cursor-pointer flex items-center gap-3 hover:scale-105 z-50 border-2 border-white text-lg">
+          <a href="?tv=true" target="_blank" rel="noopener noreferrer" className="fixed bottom-4 md:bottom-10 left-4 md:left-10 bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-4 md:px-6 py-2 md:py-3.5 rounded-full font-black shadow-[0_10px_20px_rgba(212,180,221,0.6)] transition-all cursor-pointer flex items-center gap-2 md:gap-3 hover:scale-105 z-50 border-2 border-white text-sm md:text-lg">
             🖥️ โชว์ตาราง
           </a>
 
-          <button type="button" onClick={() => handleOpenModal(null)} className="fixed bottom-10 right-10 w-16 h-16 bg-or-btn text-white rounded-full text-4xl shadow-[0_10px_20px_rgba(141,184,185,0.6)] flex items-center justify-center hover:bg-teal-600 transition z-50 cursor-pointer hover:scale-110 border-2 border-white">
+          <button type="button" onClick={() => handleOpenModal(null)} className="fixed bottom-4 md:bottom-10 right-4 md:right-10 w-12 h-12 md:w-16 md:h-16 bg-or-btn text-white rounded-full text-2xl md:text-4xl shadow-[0_10px_20px_rgba(141,184,185,0.6)] flex items-center justify-center hover:bg-teal-600 transition z-50 cursor-pointer hover:scale-110 border-2 border-white">
             +
           </button>
         </>
       )}
 
-      <div className={`fixed bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-gray-400 font-medium z-40 opacity-70 tracking-widest`}>
+      <div className={`fixed bottom-1 left-1/2 -translate-x-1/2 text-[10px] text-gray-400 font-medium z-40 opacity-70 tracking-widest`}>
         Developed by Pxngya
       </div>
 
       {isAdminModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-8 relative max-h-[85vh] flex flex-col">
-             <div className="flex justify-between items-center mb-6 border-b pb-4">
-               <h2 className="text-2xl font-bold text-[#4a2b38]">⚙️ จัดการสิทธิ์ผู้ใช้งาน (Admin)</h2>
-               <button onClick={() => {
-                 setIsAdminModalOpen(false);
-                 setEmpSearchQuery(''); 
-               }} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-4 md:p-8 relative max-h-[90vh] flex flex-col">
+             <div className="flex justify-between items-center mb-4 md:mb-6 border-b pb-4">
+               <h2 className="text-xl md:text-2xl font-bold text-[#4a2b38]">⚙️ จัดการสิทธิ์ผู้ใช้งาน (Admin)</h2>
+               <button onClick={() => { setIsAdminModalOpen(false); setEmpSearchQuery(''); }} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
              </div>
              
-             <form onSubmit={handleAddOrEditEmployee} className="flex flex-wrap gap-2 md:gap-3 mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-center">
-               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[160px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
+             <form onSubmit={handleAddOrEditEmployee} className="flex flex-col sm:flex-row flex-wrap gap-2 md:gap-3 mb-4 md:mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-start sm:items-center">
+               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} disabled={isEditingEmp} placeholder="รหัสพนักงาน" className={`w-full sm:w-[140px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${isEditingEmp ? 'bg-gray-200 cursor-not-allowed text-gray-500' : 'bg-white'}`} required />
                
-               <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="flex-1 min-w-[140px] border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
+               <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="w-full sm:flex-1 border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
                
-               <select value={newEmpRole} onChange={(e)=>setNewEmpRole(e.target.value)} className="border p-2 rounded-lg outline-none cursor-pointer bg-white w-[110px]">
+               <select value={newEmpRole} onChange={(e)=>setNewEmpRole(e.target.value)} className="w-full sm:w-[100px] border p-2 rounded-lg outline-none cursor-pointer bg-white">
                  <option value="user">พนักงาน</option>
                  <option value="admin">แอดมิน</option>
                </select>
                
-               <div className="flex gap-2 shrink-0">
+               <div className="flex gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0">
                  {isEditingEmp ? (
                    <>
-                     <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors">บันทึก</button>
-                     <button type="button" onClick={handleCancelEditEmp} className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors">ยกเลิก</button>
+                     <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors flex-1 sm:flex-none">บันทึก</button>
+                     <button type="button" onClick={handleCancelEditEmp} className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg font-bold shadow-md transition-colors flex-1 sm:flex-none">ยกเลิก</button>
                    </>
                  ) : (
-                   <button type="submit" className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-2 rounded-lg font-bold shadow-md transition-colors">เพิ่ม</button>
+                   <button type="submit" className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-2 rounded-lg font-bold shadow-md transition-colors w-full sm:w-auto">เพิ่ม</button>
                  )}
                </div>
              </form>
 
              <div className="mb-4">
-               <input 
-                 type="text" 
-                 placeholder="🔍 ค้นหารหัส หรือ ชื่อพนักงาน..." 
-                 value={empSearchQuery}
-                 onChange={(e) => setEmpSearchQuery(e.target.value)}
-                 className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white shadow-sm"
-               />
+               <input type="text" placeholder="🔍 ค้นหารหัส หรือ ชื่อพนักงาน..." value={empSearchQuery} onChange={(e) => setEmpSearchQuery(e.target.value)} className="w-full border p-2.5 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white shadow-sm" />
              </div>
 
-             <div className="overflow-y-auto border border-gray-200 rounded-xl shadow-inner bg-white flex-1">
-               <table className="w-full text-sm text-center border-collapse">
+             <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-inner bg-white flex-1 min-h-[200px]">
+               <table className="w-full text-sm text-center border-collapse min-w-[500px]">
                   <thead className="bg-[#f3eff4] sticky top-0 shadow-sm z-10">
                      <tr className="text-[#4a2b38]">
-                       <th className="p-3 border-b border-gray-300 w-[120px]">รหัส (ID)</th>
+                       <th className="p-3 border-b border-gray-300 w-[100px]">รหัส (ID)</th>
                        <th className="p-3 border-b border-gray-300 text-left">ชื่อ-สกุล</th>
-                       <th className="p-3 border-b border-gray-300">สิทธิ์ (Role)</th>
+                       <th className="p-3 border-b border-gray-300 w-[100px]">สิทธิ์</th>
                        <th className="p-3 border-b border-gray-300 w-[140px]">จัดการ</th>
                      </tr>
                   </thead>
                   <tbody>
                      {filteredEmployees.length > 0 ? filteredEmployees.map((emp) => (
-                        <tr 
-                          key={emp._id} 
-                          className={`border-b border-gray-100 transition-colors ${editingEmpDbId === emp._id ? 'bg-[#f4ebf7] border-l-4 border-l-[#b88bc9]' : 'hover:bg-[#fdfbf2]'}`}
-                        >
+                        <tr key={emp._id} className={`border-b border-gray-100 transition-colors ${editingEmpDbId === emp._id ? 'bg-[#f4ebf7] border-l-4 border-l-[#b88bc9]' : 'hover:bg-[#fdfbf2]'}`}>
                           <td className={`p-3 font-bold font-mono ${editingEmpDbId === emp._id ? 'text-purple-700' : ''}`}>{emp.empId}</td>
                           <td className="p-3 text-left">{emp.name || 'ไม่ระบุ'}</td>
-                          <td className="p-3">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${emp.role === 'admin' ? 'bg-[#d4b4dd] text-[#4a2b38]' : 'bg-gray-100 text-gray-600'}`}>{emp.role}</span>
-                          </td>
-                          <td className="p-3 flex justify-center gap-2">
-                            <button onClick={() => handleEditEmpClick(emp)} className="text-blue-500 hover:text-blue-700 font-bold px-3 py-1 bg-blue-50 rounded-lg hover:bg-blue-100 shadow-sm">แก้ไข</button>
-                            
+                          <td className="p-3"><span className={`px-2 py-1 rounded-full text-xs font-bold ${emp.role === 'admin' ? 'bg-[#d4b4dd] text-[#4a2b38]' : 'bg-gray-100 text-gray-600'}`}>{emp.role}</span></td>
+                          <td className="p-3 flex justify-center gap-1 md:gap-2">
+                            <button onClick={() => handleEditEmpClick(emp)} className="text-blue-500 hover:text-blue-700 font-bold px-2 md:px-3 py-1 bg-blue-50 rounded-lg hover:bg-blue-100 shadow-sm text-xs md:text-sm">แก้ไข</button>
                             {emp.empId !== currentUser.empId && (
-                              <button onClick={() => handleDeleteEmployee(emp._id)} className="text-red-500 hover:text-red-700 font-bold px-3 py-1 bg-red-50 rounded-lg hover:bg-red-100 shadow-sm">ลบ</button>
+                              <button onClick={() => handleDeleteEmployee(emp._id)} className="text-red-500 hover:text-red-700 font-bold px-2 md:px-3 py-1 bg-red-50 rounded-lg hover:bg-red-100 shadow-sm text-xs md:text-sm">ลบ</button>
                             )}
                           </td>
                         </tr>
                      )) : (
-                        <tr>
-                          <td colSpan={4} className="p-8 text-gray-400 font-bold">ไม่พบพนักงานที่ค้นหา</td>
-                        </tr>
+                        <tr><td colSpan={4} className="p-8 text-gray-400 font-bold">ไม่พบพนักงานที่ค้นหา</td></tr>
                      )}
                   </tbody>
                </table>
@@ -666,99 +648,100 @@ export default function ScheduleBoard() {
       )}
 
       {isSearchModalOpen && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300]">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-6 relative max-h-[85vh] flex flex-col">
-             <div className="flex justify-between items-center mb-6 border-b pb-4">
-               <h2 className="text-2xl font-bold text-[#4a2b38]">🔍 ผลการค้นหา: "{globalSearchQuery}"</h2>
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[300] p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-6 relative max-h-[90vh] flex flex-col">
+             <div className="flex justify-between items-center mb-4 border-b pb-4">
+               <h2 className="text-lg md:text-2xl font-bold text-[#4a2b38]">🔍 ผลการค้นหา: "{globalSearchQuery}"</h2>
                <button onClick={() => setIsSearchModalOpen(false)} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
              </div>
-             <div className="overflow-y-auto border border-gray-200 rounded-xl shadow-inner bg-gray-50 flex-1">
-               <table className="w-full text-sm text-center border-collapse">
+             <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-inner bg-gray-50 flex-1">
+               <table className="w-full text-xs md:text-sm text-center border-collapse min-w-[700px]">
                   <thead className="bg-[#b6d7d8] sticky top-0 shadow-sm z-10">
                      <tr className="text-[#4a2b38]">
-                       <th className="p-3 border border-gray-300">วันที่ลงคิว</th>
-                       <th className="p-3 border border-gray-300">เวลา</th>
-                       <th className="p-3 border border-gray-300 text-blue-800">ห้อง</th>
-                       <th className="p-3 border border-gray-300">HN</th>
-                       <th className="p-3 border border-gray-300 text-left">ชื่อ-สกุล</th>
-                       <th className="p-3 border border-gray-300 text-left">Operation</th>
-                       <th className="p-3 border border-gray-300">สถานะ</th>
+                       <th className="p-2 md:p-3 border border-gray-300">วันที่</th>
+                       <th className="p-2 md:p-3 border border-gray-300">เวลา</th>
+                       <th className="p-2 md:p-3 border border-gray-300 text-blue-800">ห้อง</th>
+                       <th className="p-2 md:p-3 border border-gray-300">HN</th>
+                       <th className="p-2 md:p-3 border border-gray-300 text-left">ชื่อ-สกุล</th>
+                       <th className="p-2 md:p-3 border border-gray-300 text-left">Operation</th>
+                       <th className="p-2 md:p-3 border border-gray-300">สถานะ</th>
                      </tr>
                   </thead>
                   <tbody>
                      {searchResults.length > 0 ? searchResults.map((c, i) => (
                         <tr key={i} className={`border-b border-gray-200 hover:bg-[#fdfbf2] cursor-pointer transition-colors ${c.status === 'ยกเลิก' ? 'bg-red-50' : c.status === 'เลื่อนวัน' ? 'bg-yellow-50' : 'bg-white'}`} onClick={() => { setIsSearchModalOpen(false); handleOpenModal(c); }}>
-                          <td className="p-3 border border-gray-200 font-bold text-gray-700">{c.date} {c.monthYear}</td>
-                          <td className="p-3 border border-gray-200 font-black text-[#b88bc9]">{c.time}</td>
-                          <td className="p-3 border border-gray-200 font-black text-blue-700">{c.room || '1'}</td>
-                          <td className="p-3 border border-gray-200 font-mono">{c.hn}</td>
-                          <td className="p-3 border border-gray-200 text-left font-bold text-[#4a2b38]">{c.name}</td>
-                          <td className="p-3 border border-gray-200 text-left text-gray-600 truncate max-w-[200px]">{c.operation}</td>
-                          <td className={`p-3 border border-gray-200 font-bold text-base ${c.status === 'ยืนยัน' ? 'text-green-600' : c.status === 'เลื่อนวัน' ? 'text-yellow-600' : 'text-red-600'}`}>• {c.status}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 font-bold text-gray-700 whitespace-nowrap">{c.date} {c.monthYear}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 font-black text-[#b88bc9] whitespace-nowrap">{c.time}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 font-black text-blue-700">{c.room || '1'}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 font-mono whitespace-nowrap">{c.hn}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 text-left font-bold text-[#4a2b38] whitespace-nowrap">{c.name}</td>
+                          <td className="p-2 md:p-3 border border-gray-200 text-left text-gray-600 truncate max-w-[150px]">{c.operation}</td>
+                          <td className={`p-2 md:p-3 border border-gray-200 font-bold whitespace-nowrap ${c.status === 'ยืนยัน' ? 'text-green-600' : c.status === 'เลื่อนวัน' ? 'text-yellow-600' : 'text-red-600'}`}>• {c.status}</td>
                         </tr>
                      )) : (
-                        <tr><td colSpan={7} className="p-12 text-gray-400 text-xl font-bold bg-white">ไม่พบประวัติผู้ป่วยชื่อนี้ในระบบ 🏥</td></tr>
+                        <tr><td colSpan={7} className="p-10 md:p-12 text-gray-400 text-base md:text-xl font-bold bg-white">ไม่พบประวัติผู้ป่วยชื่อนี้ในระบบ 🏥</td></tr>
                      )}
                   </tbody>
                </table>
              </div>
-             <div className="mt-4 text-center text-sm text-gray-500 font-medium">* คลิกที่รายชื่อเพื่อเปิดดู หรือแก้ไขรายละเอียดทั้งหมด</div>
+             <div className="mt-4 text-center text-xs md:text-sm text-gray-500 font-medium">* คลิกที่รายชื่อเพื่อเปิดดู หรือแก้ไขรายละเอียดทั้งหมด</div>
           </div>
         </div>
       )}
 
+      {/* 🟢 ส่วนที่ 5: ฟอร์มเพิ่ม/แก้ไข (ปรับ Responsive ให้เรียงสวยในมือถือ) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] backdrop-blur-sm">
-          <div className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-8 relative max-h-[90vh] overflow-y-auto">
-            <h2 className="text-3xl font-black text-center mb-8 bg-[#f3eff4] py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200 sticky top-[-32px] z-10">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[200] backdrop-blur-sm p-2 md:p-4">
+          <div className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-8 relative max-h-[95vh] overflow-y-auto">
+            <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200 sticky top-[-16px] md:top-[-32px] z-10">
               {editingCase ? '📝 แก้ไขข้อมูลคนไข้' : '➕ เพิ่มข้อมูลคนไข้ใหม่'}
             </h2>
-            <form onSubmit={handleSave} className="grid grid-cols-2 gap-x-10 gap-y-5">
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
+            <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-5">
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
                
-               <div className="flex items-center gap-4">
-                 <label className="w-32 text-right font-bold text-gray-700">เวลา / ห้อง</label>
-                 <div className="flex flex-1 gap-2">
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                 <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / ห้อง</label>
+                 <div className="flex w-full sm:flex-1 gap-2">
                    <input type="time" name="time" value={formData.time} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono font-bold" required />
-                   <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-28 bg-blue-50 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none font-bold cursor-pointer">
+                   <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-24 sm:w-28 bg-blue-50 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none font-bold cursor-pointer">
                      {[1,2,3,4,5,6].map(r => <option key={r} value={r}>ห้อง {r}</option>)}
                    </select>
                  </div>
                </div>
 
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">HN</label><input type="text" name="hn" value={formData.hn} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono" required /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">ชื่อ-สกุล</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold text-[#4a2b38]" required /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">อายุ</label><input type="text" name="age" value={formData.age} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">Surgeon</label><input type="text" name="surgeon" value={formData.surgeon} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">Team</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"  /></div>
-               <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">Operation</label><textarea name="operation" value={formData.operation} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-20 resize-none"></textarea></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">เครื่องมือพิเศษ</label><input type="text" name="specialEquipment" value={formData.specialEquipment} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700 text-sm leading-tight">Type of Anesth</label><input type="text" name="typeOfAnesth" value={formData.typeOfAnesth} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700 text-sm leading-tight">Anesthesiologist</label><input type="text" name="anesthesiologist" value={formData.anesthesiologist} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700 text-sm leading-tight">Date of Booking</label><input type="date" name="dateOfBooking" value={formData.dateOfBooking} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">เวลารับ Set</label><input type="time" name="timeReceiveSet" value={formData.timeReceiveSet} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">ผู้จอง</label><input type="text" name="booker" value={formData.booker} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">ผู้รับจอง</label><input type="text" name="receiver" value={formData.receiver} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">หมายเหตุ</label><textarea name="remarks" value={formData.remarks} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 resize-none"></textarea></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">HN</label><input type="text" name="hn" value={formData.hn} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono" required /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ชื่อ-สกุล</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold text-[#4a2b38]" required /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">อายุ</label><input type="text" name="age" value={formData.age} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Surgeon</label><input type="text" name="surgeon" value={formData.surgeon} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">Team</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"  /></div>
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">Operation</label><textarea name="operation" value={formData.operation} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 sm:h-20 resize-none"></textarea></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เครื่องมือพิเศษ</label><input type="text" name="specialEquipment" value={formData.specialEquipment} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Type of Anesth</label><input type="text" name="typeOfAnesth" value={formData.typeOfAnesth} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Anesthesiologist</label><input type="text" name="anesthesiologist" value={formData.anesthesiologist} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Date of Booking</label><input type="date" name="dateOfBooking" value={formData.dateOfBooking} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลารับ Set</label><input type="time" name="timeReceiveSet" value={formData.timeReceiveSet} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ผู้จอง</label><input type="text" name="booker" value={formData.booker} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ผู้รับจอง</label><input type="text" name="receiver" value={formData.receiver} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">หมายเหตุ</label><textarea name="remarks" value={formData.remarks} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 resize-none"></textarea></div>
 
                {editingCase && (
-                  <div className="col-span-2 flex justify-center gap-10 mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
-                    <label className="flex items-center gap-2 cursor-pointer font-black text-green-600 text-xl"><input type="radio" name="status" value="ยืนยัน" checked={formData.status === 'ยืนยัน'} onChange={handleChange} className="accent-green-600 w-6 h-6" /> ยืนยันผ่าตัด</label>
-                    <label className="flex items-center gap-2 cursor-pointer font-black text-yellow-500 text-xl"><input type="radio" name="status" value="เลื่อนวัน" checked={formData.status === 'เลื่อนวัน'} onChange={handleChange} className="accent-yellow-500 w-6 h-6" /> เลื่อนวัน</label>
-                    <label className="flex items-center gap-2 cursor-pointer font-black text-red-500 text-xl"><input type="radio" name="status" value="ยกเลิก" checked={formData.status === 'ยกเลิก'} onChange={handleChange} className="accent-red-500 w-6 h-6" /> ยกเลิกเคส</label>
+                  <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 sm:gap-10 mt-4 md:mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
+                    <label className="flex items-center gap-2 cursor-pointer font-black text-green-600 text-lg md:text-xl"><input type="radio" name="status" value="ยืนยัน" checked={formData.status === 'ยืนยัน'} onChange={handleChange} className="accent-green-600 w-5 h-5 md:w-6 md:h-6" /> ยืนยันผ่าตัด</label>
+                    <label className="flex items-center gap-2 cursor-pointer font-black text-yellow-500 text-lg md:text-xl"><input type="radio" name="status" value="เลื่อนวัน" checked={formData.status === 'เลื่อนวัน'} onChange={handleChange} className="accent-yellow-500 w-5 h-5 md:w-6 md:h-6" /> เลื่อนวัน</label>
+                    <label className="flex items-center gap-2 cursor-pointer font-black text-red-500 text-lg md:text-xl"><input type="radio" name="status" value="ยกเลิก" checked={formData.status === 'ยกเลิก'} onChange={handleChange} className="accent-red-500 w-5 h-5 md:w-6 md:h-6" /> ยกเลิกเคส</label>
                   </div>
                )}
 
-               <div className="col-span-2 flex justify-center mt-8 gap-4">
-                 <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-12 py-3 rounded-full text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent">💾 บันทึกข้อมูล</button>
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center mt-6 gap-3 sm:gap-4">
+                 <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-8 md:px-12 py-3 rounded-full text-lg md:text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">💾 บันทึก</button>
                  
                  {editingCase && currentUser?.role === 'admin' && (
-                   <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent">
+                   <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">
                      🗑️ ลบข้อมูล
                    </button>
                  )}
                  
-                 <button type="button" onClick={() => setIsModalOpen(false)} className="ml-4 text-gray-400 hover:text-gray-700 font-bold cursor-pointer text-lg underline underline-offset-4 decoration-2 transition-colors">ปิด/ยกเลิก</button>
+                 <button type="button" onClick={() => setIsModalOpen(false)} className="mt-2 sm:mt-0 sm:ml-4 text-gray-400 hover:text-gray-700 font-bold cursor-pointer text-base md:text-lg underline underline-offset-4 decoration-2 transition-colors">ปิด/ยกเลิก</button>
                </div>
             </form>
           </div>
