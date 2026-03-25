@@ -268,10 +268,14 @@ export default function ScheduleBoard() {
       const newMonthYear = `${year}-${month}`;
       const newDateNum = parseInt(day, 10);
       const oldDateStr = editingCase && editingCase.monthYear && editingCase.date ? `${editingCase.monthYear}-${String(editingCase.date).padStart(2, '0')}` : '';
-      const payloadData = { ...formData, room: formData.room || '1' };
+      const payloadData = { 
+        ...formData, 
+        room: formData.room || '1',
+        actionBy: currentUser.name || currentUser.empId
+      };
 
       if (editingCase && formData.status === 'เลื่อนวัน' && formData.surgeryDate !== oldDateStr) {
-          await fetch('/api/cases', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...editingCase, status: 'เลื่อนวัน' }) });
+          await fetch('/api/cases', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...editingCase, status: 'เลื่อนวัน', actionBy: currentUser.name || currentUser.empId }) });
           const payloadNew = { ...payloadData, date: newDateNum, monthYear: newMonthYear, status: 'ยืนยัน' };
           delete payloadNew._id; 
           await fetch('/api/cases', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadNew) });
@@ -289,7 +293,10 @@ export default function ScheduleBoard() {
   const handleDeleteCase = async (id: string) => {
     if (!confirm('ยืนยันการลบข้อมูลคนไข้รายนี้? \n(ลบแล้วไม่สามารถกู้คืนได้)')) return;
     try {
-      const res = await fetch(`/api/cases?id=${id}`, { method: 'DELETE' });
+      const actionBy = encodeURIComponent(currentUser.name || currentUser.empId);
+      const patientName = encodeURIComponent(editingCase?.name || 'ไม่ทราบชื่อ');
+      
+      const res = await fetch(`/api/cases?id=${id}&actionBy=${actionBy}&name=${patientName}`, { method: 'DELETE' });
       if (res.ok) {
         setIsModalOpen(false);
         setIsSearchModalOpen(false); 
@@ -315,7 +322,7 @@ export default function ScheduleBoard() {
       const caseMins = h * 60 + m;
       return currentMinsFromMidnight >= caseMins - 15 && currentMinsFromMidnight <= caseMins + 30;
     });
-    activeCases = inWindowCases.slice(-4); // ให้โชว์สูงสุด 4 คิวตามรูปแรก
+    activeCases = inWindowCases.slice(-4); 
   }
 
   const filteredEmployees = employees.filter(emp => 
@@ -419,7 +426,7 @@ export default function ScheduleBoard() {
             </div>
           </div>
           <div className="flex overflow-x-auto bg-or-table-head rounded-t-lg border border-b-0 border-gray-300 shadow-sm">
-            <div className="px-4 py-2 font-bold bg-or-table-head border-r border-gray-300 sticky left-0 z-10">วัน</div>
+            <div className="px-4 py-2 font-bold bg-or-table-head border-r border-gray-300 sticky left-0 z-10">วันที่</div>
             {[...Array(daysInMonth)].map((_, i) => (
               <button key={i+1} onClick={() => setSelectedDate(i+1)} className={`px-4 py-2 min-w-[40px] border-r border-gray-300 ${selectedDate === i+1 ? 'bg-white text-[#b88bc9] rounded-t-md font-black shadow-[0_-3px_0_0_#b88bc9]' : 'hover:bg-[#fdfbf2]'}`}>{i+1}</button>
             ))}
@@ -580,9 +587,9 @@ export default function ScheduleBoard() {
                }} className="text-gray-400 hover:text-red-500 font-black text-2xl transition-colors">✕</button>
              </div>
              
-             {/* แก้ไข Layout แบบฟอร์มให้ยืดหยุ่นและไม่ทะลุกรอบ */}
+             {/* 🛑 จุดที่แก้ไข: ถอด disabled ออกจาก input รหัสพนักงานแล้วครับ */}
              <form onSubmit={handleAddOrEditEmployee} className="flex flex-wrap gap-2 md:gap-3 mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-center">
-               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} disabled={isEditingEmp} placeholder="รหัสพนักงาน" className={`w-[120px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${isEditingEmp ? 'bg-gray-200 cursor-not-allowed text-gray-500' : 'bg-white'}`} required />
+               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[120px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
                
                <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="flex-1 min-w-[140px] border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
                
@@ -719,7 +726,7 @@ export default function ScheduleBoard() {
                <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">ชื่อ-สกุล</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold text-[#4a2b38]" required /></div>
                <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">อายุ</label><input type="text" name="age" value={formData.age} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
                <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">Surgeon</label><input type="text" name="surgeon" value={formData.surgeon} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">Team</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"  /></div>
+               <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">ทีมแพทย์ (Team)</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" placeholder="ระบุรายชื่อทีมแพทย์ผู้ช่วย" /></div>
                <div className="col-span-2 flex items-start gap-4"><label className="w-32 text-right font-bold text-gray-700 mt-2">Operation</label><textarea name="operation" value={formData.operation} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-20 resize-none"></textarea></div>
                <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700">เครื่องมือพิเศษ</label><input type="text" name="specialEquipment" value={formData.specialEquipment} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
                <div className="flex items-center gap-4"><label className="w-32 text-right font-bold text-gray-700 text-sm leading-tight">Type of Anesth</label><input type="text" name="typeOfAnesth" value={formData.typeOfAnesth} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
