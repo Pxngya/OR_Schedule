@@ -2,30 +2,45 @@ import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
 
-// ฟังก์ชันรับข้อมูลจาก LINE (LINE จะบังคับส่งแบบ POST)
 export async function POST(req: Request) {
   try {
     const text = await req.text();
     if (text) {
       const body = JSON.parse(text);
+      const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+
       if (body.events && body.events.length > 0) {
         for (const event of body.events) {
-          if (event.source && event.source.type === 'group') {
-            console.log('🎉 เจอรหัสกลุ่มแล้ว (Group ID):', event.source.groupId);
+          // ถ้ามีคนพิมพ์ข้อความในกลุ่ม
+          if (event.source && event.source.type === 'group' && event.type === 'message') {
+            const groupId = event.source.groupId;
+            const replyToken = event.replyToken;
+
+            // สั่งให้บอทตอบกลับในกลุ่มทันทีว่ารหัสอะไร!
+            if (token && replyToken) {
+               await fetch('https://api.line.me/v2/bot/message/reply', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify({
+                    replyToken: replyToken,
+                    messages: [{ type: 'text', text: `🔑 รหัสกลุ่มของคุณคือ:\n${groupId}` }]
+                  })
+               });
+            }
           }
         }
       }
     }
-    // LINE ต้องการแค่คำตอบรับว่า 200 OK ห้ามตอบอย่างอื่นเด็ดขาด
     return NextResponse.json({ message: 'OK' }, { status: 200 });
   } catch (error) {
     console.error('Webhook Error:', error);
-    // ถึงโค้ดจะพัง ก็ต้องบอก LINE ว่า 200 OK ไม่งั้นไลน์จะขึ้น Error 405/500
     return NextResponse.json({ message: 'OK' }, { status: 200 });
   }
 }
 
-// เผื่อไว้ทดสอบว่าลิงก์ทำงานไหม (เปิดผ่านเบราว์เซอร์ได้)
 export async function GET() {
   return NextResponse.json({ message: 'สายลับ Webhook พร้อมทำงาน!' }, { status: 200 });
 }
