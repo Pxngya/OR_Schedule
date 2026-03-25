@@ -426,7 +426,7 @@ export default function ScheduleBoard() {
         <>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
             <div className="bg-or-header rounded-2xl p-3 md:p-4 shadow-sm inline-block border border-gray-200 w-full md:w-auto text-center md:text-left">
-              <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร</h1>
+              <h1 className="text-xl md:text-3xl lg:text-4xl font-bold text-[#4a2b38]">ตารางผ่าตัด แผนกผ่าตัดโรงพยาบาลกรุงเทพอุดร2</h1>
             </div>
             
             <div className="flex flex-wrap items-center justify-center md:justify-end gap-2 bg-white p-2 rounded-xl shadow-sm border border-gray-200 w-full md:w-auto">
