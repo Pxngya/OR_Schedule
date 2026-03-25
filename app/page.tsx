@@ -526,11 +526,11 @@ export default function ScheduleBoard() {
                     <td className="border border-gray-300 text-left px-3 font-black text-2xl truncate max-w-[300px]">{c.name}</td>
                     <td className="border border-gray-300 font-mono text-xl">{c.hn}</td>
                     <td className="border border-gray-300 text-lg px-2 truncate max-w-[120px]">{c.specialEquipment}</td>
-                    <td className="border border-gray-300 text-left text-xs px-2 truncate max-w-[150px]">{c.operation}</td>
+                    <td className="border border-gray-300 text-left text-xl px-2 truncate max-w-[150px]">{c.operation}</td>
                     <td className="border border-gray-300 text-lg px-2 truncate max-w-[120px]">{c.surgeon}</td>
                     <td className="border border-gray-300 text-lg px-2">{c.anesthesiologist}</td>
                     <td className="border border-gray-300 text-lg px-2">{c.typeOfAnesth}</td>
-                    <td className="border border-gray-300 text-[#4a2b38] text-xs px-2 truncate max-w-[100px]">{c.team}</td>
+                    <td className="border border-gray-300 text-[#4a2b38] text-xl px-2 truncate max-w-[100px]">{c.team}</td>
                   </>
                 ) : (
                   <>
