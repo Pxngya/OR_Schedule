@@ -365,6 +365,7 @@ export default function ScheduleBoard() {
   return (
     <div className={`bg-[#fdfbf2] text-or-text relative ${isTVMode ? 'h-screen w-screen overflow-hidden p-2 flex flex-col' : 'min-h-screen p-4 pb-16'}`}>
       
+      {/* 🟢 ส่วนที่ 1: Header ด้านบนสุด (TV Mode) */}
       {isTVMode && (
         <div className="flex justify-between items-center mb-2 px-2 h-[8vh] shrink-0">
           <div className="flex items-center gap-4">
@@ -388,9 +389,9 @@ export default function ScheduleBoard() {
         </div>
       )}
 
-      {/* 🚀 ย้ายกล่อง Widget มาไว้ตรงนี้ (ด้านบนตาราง) */}
+      {/* 🚀 🟢 ส่วนที่ 2: กล่อง Widget คิวต่อไป (ย้ายมาอยู่ตรงนี้ ด้านบนตาราง!) */}
       {isTVMode && activeCases.length > 0 && (
-        <div className="w-full flex justify-center gap-4 shrink-0 mb-3 px-2 z-10 overflow-hidden">
+        <div className="w-full flex justify-center gap-4 shrink-0 mb-3 px-2 z-10">
           {activeCases.map((ac, idx) => (
              <div key={idx} className="bg-white border border-gray-200 shadow-md rounded-2xl p-3 flex-1 min-w-[250px] max-w-[400px] border-l-8 border-l-[#c2e2c6]">
                <div className="flex justify-between items-center mb-1">
@@ -422,6 +423,7 @@ export default function ScheduleBoard() {
         </div>
       )}
 
+      {/* 🟢 ส่วนที่ 3: Header สำหรับโหมดแอดมิน (Non-TV Mode) */}
       {!isTVMode && (
         <>
           <div className="flex justify-between items-start mb-4">
@@ -469,6 +471,7 @@ export default function ScheduleBoard() {
         </>
       )}
 
+      {/* 🟢 ส่วนที่ 4: ตารางหลัก */}
       <div className={`bg-white border border-gray-300 shadow-md flex-1 min-h-0 flex flex-col ${isTVMode ? 'rounded-lg overflow-hidden' : 'overflow-x-auto rounded-b-lg'}`}>
         <table className={`w-full text-center border-collapse ${isTVMode ? 'flex-1 h-full' : ''}`}>
           <thead>
@@ -590,7 +593,7 @@ export default function ScheduleBoard() {
              </div>
              
              <form onSubmit={handleAddOrEditEmployee} className="flex flex-wrap gap-2 md:gap-3 mb-6 bg-[#fdfbf2] p-4 rounded-xl border border-gray-200 items-center">
-               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} disabled={isEditingEmp} placeholder="รหัสพนักงาน" className={`w-[120px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${isEditingEmp ? 'bg-gray-200 cursor-not-allowed text-gray-500' : 'bg-white'}`} required />
+               <input type="text" value={newEmpId} onChange={(e)=>setNewEmpId(e.target.value)} placeholder="รหัสพนักงาน" className="w-[160px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] bg-white" required />
                
                <input type="text" value={newEmpName} onChange={(e)=>setNewEmpName(e.target.value)} placeholder="ชื่อ-สกุล พนักงาน" className="flex-1 min-w-[140px] border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd]" required />
                
