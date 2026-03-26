@@ -24,7 +24,6 @@ export default function ScheduleBoard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [currentDateText, setCurrentDateText] = useState('');
   const [currentTimeText, setCurrentTimeText] = useState('');
   const [currentMinsFromMidnight, setCurrentMinsFromMidnight] = useState(0); 
   const [cases, setCases] = useState<any[]>([]);
@@ -40,6 +39,9 @@ export default function ScheduleBoard() {
   
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [statusUpdateCase, setStatusUpdateCase] = useState<any>(null);
+
+  const [dashboardTab, setDashboardTab] = useState('daily');
+  const [allDashboardCases, setAllDashboardCases] = useState<any[]>([]);
 
   const initialForm = { 
     surgeryDate: '', time: '', room: '1', hn: '', name: '', age: '', operation: '', 
@@ -77,6 +79,18 @@ export default function ScheduleBoard() {
   };
 
   const handleLogout = () => { localStorage.removeItem('or_user'); setCurrentUser(null); };
+
+  const sendLineNotify = async (message: string) => {
+    try {
+      await fetch('/api/line', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+    } catch (error) {
+      console.error("Line Notify Error:", error);
+    }
+  };
 
   const exportToExcel = async () => {
     try {
@@ -183,10 +197,28 @@ export default function ScheduleBoard() {
     setIsSearching(false);
   };
 
+  // 🚀 เพิ่มลอจิก ดึงเวลาและวันที่ปัจจุบันมาใส่ในฟอร์มอัตโนมัติ เฉพาะตอน "สร้างคิวใหม่"
   const handleOpenModal = (caseData: any = null) => {
     setEditingCase(caseData);
     let defaultDateStr = caseData && caseData.monthYear && caseData.date ? `${caseData.monthYear}-${String(caseData.date).padStart(2, '0')}` : `${currentMonthYear}-${String(selectedDate).padStart(2, '0')}`;
-    setFormData(caseData ? { ...initialForm, ...caseData, room: caseData.room || '1', surgeryDate: defaultDateStr } : { ...initialForm, surgeryDate: defaultDateStr });
+    
+    if (caseData) {
+       // ถ้าเป็นการแก้ไขข้อมูล ให้ใช้ข้อมูลเดิมทั้งหมด
+       setFormData({ ...initialForm, ...caseData, room: caseData.room || '1', surgeryDate: defaultDateStr });
+    } else {
+       // 🚀 ถ้าสร้างคิวใหม่ ให้ตั้งค่าเริ่มต้นของวันจองและเวลารับเซ็ตเป็น "เดี๋ยวนี้"
+       const now = new Date();
+       const currentYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+       const currentHM = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+       
+       setFormData({ 
+           ...initialForm, 
+           surgeryDate: defaultDateStr,
+           dateOfBooking: currentYMD, // 📌 ใส่วันที่ปัจจุบัน
+           timeReceiveSet: currentHM  // 📌 ใส่เวลาปัจจุบัน
+       });
+    }
+    
     setIsModalOpen(true); setIsSpeedDialOpen(false);
   };
 
@@ -229,11 +261,18 @@ export default function ScheduleBoard() {
           await fetch('/api/cases', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...editingCase, status: 'เลื่อนวัน', actionBy: currentUser.name || currentUser.empId }) });
           const payloadNew = { ...payloadData, date: newDateNum, monthYear: newMonthYear, status: 'ยืนยัน' }; delete payloadNew._id; 
           await fetch('/api/cases', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payloadNew) });
+          sendLineNotify(`เลื่อนวันผ่าตัด: OR ${payloadData.room} | คุณ ${payloadData.name} | ย้ายไปวันที่ ${newDateNum} ${newMonthYear}`);
       } else {
           const payload = { ...payloadData, date: newDateNum, monthYear: newMonthYear };
           const method = editingCase && editingCase._id ? 'PUT' : 'POST';
           if (method === 'PUT') payload._id = editingCase._id;
           await fetch('/api/cases', { method: method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          
+          if (method === 'POST') {
+             sendLineNotify(`🟢 เพิ่มคิวใหม่: OR ${payloadData.room} | เวลา ${payloadData.time || 'TF'} น. | คุณ ${payloadData.name}`);
+          } else {
+             sendLineNotify(`📝 อัปเดตคิว: OR ${payloadData.room} | เวลา ${payloadData.time || 'TF'} น. | คุณ ${payloadData.name} | สถานะ: ${payloadData.status || 'รอระบุ'}`);
+          }
       }
       setIsModalOpen(false); fetchCases();
     } catch (error) { console.error("Error saving case:", error); }
@@ -263,6 +302,7 @@ export default function ScheduleBoard() {
       const payload = { ...statusUpdateCase, patientStatus: newStatus, actionBy: currentUser?.name || currentUser?.empId || 'TV Update' };
       await fetch('/api/cases', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       setIsStatusModalOpen(false); setStatusUpdateCase(null); fetchCases();
+      sendLineNotify(`อัปเดตสถานะ: คุณ ${payload.name} -> เปลี่ยนเป็น [ ${newStatus || 'ว่าง'} ]`);
     } catch (error) { console.error("Error updating patient status:", error); }
   };
 
@@ -272,7 +312,10 @@ export default function ScheduleBoard() {
       const actionBy = encodeURIComponent(currentUser.name || currentUser.empId);
       const patientName = encodeURIComponent(editingCase?.name || (isNurseLog ? 'Log พยาบาล' : 'ไม่ทราบชื่อ'));
       const res = await fetch(`/api/cases?id=${id}&actionBy=${actionBy}&name=${patientName}`, { method: 'DELETE' });
-      if (res.ok) { setIsModalOpen(false); setIsSearchModalOpen(false); setIsNurseModalOpen(false); fetchCases(); } 
+      if (res.ok) { 
+        if (!isNurseLog && editingCase) sendLineNotify(`❌ ลบคิวผ่าตัด: คุณ ${editingCase.name}`);
+        setIsModalOpen(false); setIsSearchModalOpen(false); setIsNurseModalOpen(false); fetchCases(); 
+      } 
       else alert('เกิดข้อผิดพลาด ไม่สามารถลบข้อมูลได้');
     } catch (error) { console.error("Error deleting case:", error); }
   };
@@ -281,25 +324,33 @@ export default function ScheduleBoard() {
   const handleNurseChange = (e: any) => { const { name, value } = e.target; setNurseFormData(prev => ({ ...prev, [name]: value })); };
 
   let dashCases: any[] = [];
-  if (isDashboardOpen) {
-     if (dashboardTab === 'daily') {
-        dashCases = allDashboardCases.filter(c => c.monthYear === currentMonthYear && c.date === selectedDate);
-     } else if (dashboardTab === 'monthly') {
-        dashCases = allDashboardCases.filter(c => c.monthYear === currentMonthYear);
-     } else if (dashboardTab === 'yearly') {
-        const year = currentMonthYear.split('-')[0];
-        dashCases = allDashboardCases.filter(c => c.monthYear && c.monthYear.startsWith(year));
-     } else if (dashboardTab === 'weekly') {
-        const selD = new Date(`${currentMonthYear}-${String(selectedDate).padStart(2, '0')}T12:00:00`);
-        const day = selD.getDay();
-        const diffToMon = selD.getDate() - day + (day === 0 ? -6 : 1);
-        const startOfWeek = new Date(selD); startOfWeek.setDate(diffToMon); startOfWeek.setHours(0,0,0,0);
-        const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23,59,59,999);
-        
-        dashCases = allDashboardCases.filter(c => {
-            const cDate = new Date(`${c.monthYear}-${String(c.date).padStart(2, '0')}T12:00:00`);
-            return cDate >= startOfWeek && cDate <= endOfWeek;
-        });
+  if (isDashboardOpen && allDashboardCases.length > 0) {
+     try {
+       if (dashboardTab === 'daily') {
+          dashCases = allDashboardCases.filter(c => c.monthYear === currentMonthYear && c.date === selectedDate);
+       } else if (dashboardTab === 'monthly') {
+          dashCases = allDashboardCases.filter(c => c.monthYear === currentMonthYear);
+       } else if (dashboardTab === 'yearly') {
+          const year = currentMonthYear ? currentMonthYear.split('-')[0] : new Date().getFullYear().toString();
+          dashCases = allDashboardCases.filter(c => String(c.monthYear || '').startsWith(year));
+       } else if (dashboardTab === 'weekly') {
+          const selD = new Date(`${currentMonthYear}-${String(selectedDate).padStart(2, '0')}T12:00:00`);
+          if (!isNaN(selD.getTime())) {
+             const day = selD.getDay();
+             const diffToMon = selD.getDate() - day + (day === 0 ? -6 : 1);
+             const startOfWeek = new Date(selD); startOfWeek.setDate(diffToMon); startOfWeek.setHours(0,0,0,0);
+             const endOfWeek = new Date(startOfWeek); endOfWeek.setDate(startOfWeek.getDate() + 6); endOfWeek.setHours(23,59,59,999);
+             
+             dashCases = allDashboardCases.filter(c => {
+                 if (!c.monthYear || !c.date) return false;
+                 const cDate = new Date(`${c.monthYear}-${String(c.date).padStart(2, '0')}T12:00:00`);
+                 return cDate >= startOfWeek && cDate <= endOfWeek;
+             });
+          }
+       }
+     } catch (error) {
+       console.error("Dashboard calculation error:", error);
+       dashCases = [];
      }
   }
 
@@ -691,7 +742,7 @@ export default function ScheduleBoard() {
                        <div className="p-10 md:p-16 text-center flex flex-col items-center justify-center gap-3">
                            <span className="text-5xl">📋</span>
                            <span className="text-gray-400 font-bold text-lg md:text-xl">ยังไม่มีข้อมูลตาราง On call ในวันนี้</span>
-                           <button onClick={() => handleOpenNurseModal(null)} className="mt-2 bg-[#ffdac1] text-[#4a2b38] text-sm px-6 py-2 rounded-full font-bold hover:bg-[#facba8] shadow-sm transition-transform hover:scale-105">+ เพิ่มOn call</button>
+                           <button onClick={() => handleOpenNurseModal(null)} className="mt-2 bg-[#ffdac1] text-[#4a2b38] text-sm px-6 py-2 rounded-full font-bold hover:bg-[#facba8] shadow-sm transition-transform hover:scale-105">เพิ่มข้อมูล On call</button>
                        </div>
                    )}
               </div>
@@ -722,21 +773,21 @@ export default function ScheduleBoard() {
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[400] p-4 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 relative animate-fade-in-up border-t-[10px] border-[#d4b4dd]">
              <button onClick={() => setIsStatusModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-red-500 font-black text-2xl">✕</button>
-             <h2 className="text-2xl font-black text-center mb-1 text-[#4a2b38]">อัปเดตสถานะผู้ป่วย</h2>
+             <h2 className="text-2xl font-black text-center mb-1 text-[#4a2b38]">อัปเดตสถานะ</h2>
              <div className="text-center text-gray-500 mb-6 font-bold text-lg">คุณ {statusUpdateCase.name}</div>
              
              <div className="grid grid-cols-1 gap-3">
                 <button onClick={() => handleUpdatePatientStatus('In OR')} className="bg-[#fff0f1] hover:bg-[#ffe0e2] border-2 border-[#ff9a9e] text-[#b04a50] py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105">
-                   <span className="w-5 h-5 rounded-full bg-[#ff9a9e] animate-pulse shadow-sm"></span> กำลังผ่าตัด (In OR)
+                   <span className="w-5 h-5 rounded-full bg-[#ff9a9e] animate-pulse shadow-sm"></span> In OR
                 </button>
                 <button onClick={() => handleUpdatePatientStatus('Send to')} className="bg-[#fff0f1] hover:bg-[#ffe0e2] border-2 border-[#ff9a9e] text-[#b04a50] py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105">
-                   <span className="w-5 h-5 rounded-full bg-[#ff9a9e] animate-pulse shadow-sm"></span> กำลังส่งตัว (Send to)
+                   <span className="w-5 h-5 rounded-full bg-[#ff9a9e] animate-pulse shadow-sm"></span> Send to
                 </button>
                 <button onClick={() => handleUpdatePatientStatus('Recovery')} className="bg-[#fffdf0] hover:bg-[#fff9d1] border-2 border-[#f6d365] text-[#b39535] py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105">
-                   <span className="w-5 h-5 rounded-full bg-[#f6d365] shadow-sm"></span> พักฟื้น (Recovery)
+                   <span className="w-5 h-5 rounded-full bg-[#f6d365] shadow-sm"></span> Recovery
                 </button>
                 <button onClick={() => handleUpdatePatientStatus('Discharge')} className="bg-[#f0fcf9] hover:bg-[#d8f7ee] border-2 border-[#84e3c8] text-[#2c7560] py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105">
-                   <span className="w-5 h-5 rounded-full bg-[#84e3c8] shadow-sm"></span> เสร็จสิ้น (Discharge)
+                   <span className="w-5 h-5 rounded-full bg-[#84e3c8] shadow-sm"></span> Discharge
                 </button>
                 <button onClick={() => handleUpdatePatientStatus('')} className="bg-gray-100 hover:bg-gray-200 text-gray-600 py-3 rounded-xl font-bold text-lg mt-2 transition-colors border-2 border-transparent">
                    🔄 เคลียร์สถานะ (ตั้งเป็นค่าว่าง)
@@ -750,14 +801,19 @@ export default function ScheduleBoard() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
           <div className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-8 relative my-8 md:my-auto flex flex-col">
-            <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200">{editingCase ? 'แก้ไขข้อมูลคนไข้' : 'เพิ่มข้อมูลคนไข้ใหม่'}</h2>
+            <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200">{editingCase ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}</h2>
+            
+            {/* 🚀 จัดเรียง Layout ของฟอร์มใหม่ทั้งหมด เพื่อความสมดุลและสวยงาม */}
             <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-5">
+               
+               {/* แถวที่ 1: วันที่ | เวลา */}
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                  <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / OR</label>
                  <div className="flex w-full sm:flex-1 gap-2 items-center">
+                   {/* 🚀 ระบบเลือกเวลา / เคส TF */}
                    {formData.time === 'tf' || formData.time === 'TF' ? (
-                     <div className="border border-gray-300 p-2 flex-1 bg-gray-100 rounded-lg text-center font-bold text-gray-500">TF)</div>
+                     <div className="border border-gray-300 p-2 flex-1 bg-gray-100 rounded-lg text-center font-bold text-gray-500">TF</div>
                    ) : (
                      <input type="time" name="time" value={formData.time} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono font-bold" required={formData.time !== 'tf' && formData.time !== 'TF'} />
                    )}
@@ -771,32 +827,49 @@ export default function ScheduleBoard() {
                  </div>
                </div>
                
-               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3 rounded-xl border border-gray-200 bg-white">
-                 <label className="sm:w-32 sm:text-right font-black text-[#4a2b38] text-sm sm:text-base">สถานะผู้ป่วย</label>
+               {/* แถวที่ 2: HN | ชื่อ */}
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">HN</label><input type="text" name="hn" value={formData.hn} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono" required /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ชื่อ-สกุล</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold text-[#4a2b38]" required /></div>
+               
+               {/* แถวที่ 3: อายุ | สถานะผู้ป่วย (ปลดกรอบขาว/พื้นหลังออกแล้ว กลืนไปกับฟอร์ม) */}
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">อายุ</label><input type="text" name="age" value={formData.age} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+                 <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">สถานะ</label>
                  <select name="patientStatus" value={formData.patientStatus || ''} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer">
-                    <option value="">-- ไม่ระบุ (รอดำเนินการ) --</option>
-                    <option value="In OR">🟣 In OR (กำลังผ่าตัด)</option>
-                    <option value="Send to">🟣 Send to (กำลังส่งตัว)</option>
-                    <option value="Recovery">🟡 Recovery (พักฟื้น)</option>
-                    <option value="Discharge">🟢 Discharge (เสร็จสิ้น)</option>
+                    <option value="">-- ไม่ระบุ --</option>
+                    <option value="In OR">In OR</option>
+                    <option value="Send to">Send to </option>
+                    <option value="Recovery">Recovery </option>
+                    <option value="Discharge">Discharge </option>
                  </select>
                </div>
 
-               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">HN</label><input type="text" name="hn" value={formData.hn} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono" required /></div>
-               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ชื่อ-สกุล</label><input type="text" name="name" value={formData.name} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold text-[#4a2b38]" required /></div>
-               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">อายุ</label><input type="text" name="age" value={formData.age} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               {/* แถวที่ 4: Surgeon | Team */}
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Surgeon</label><input type="text" name="surgeon" value={formData.surgeon} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
-               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">Team</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"  /></div>
-               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">Operation</label><textarea name="operation" value={formData.operation} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 sm:h-20 resize-none"></textarea></div>
-               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เครื่องมือพิเศษ</label><input type="text" name="specialEquipment" value={formData.specialEquipment} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Team</label><input type="text" name="team" value={formData.team} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"  /></div>
+               
+               {/* แถวที่ 5: Operation (ขยายเต็มบรรทัด) */}
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">Operation</label><textarea name="operation" value={formData.operation} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 resize-none"></textarea></div>
+               
+               {/* แถวที่ 6: เครื่องมือพิเศษ (ขยายเต็มบรรทัด เพราะอาจจะยาว) */}
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เครื่องมือพิเศษ</label><input type="text" name="specialEquipment" value={formData.specialEquipment} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               
+               {/* แถวที่ 7: Type Anesth | Anesth */}
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Type of Anesth</label><input type="text" name="typeOfAnesth" value={formData.typeOfAnesth} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Anesthesiologist</label><input type="text" name="anesthesiologist" value={formData.anesthesiologist} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               
+               {/* แถวที่ 8: วันจอง | เวลารับเซ็ต */}
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">Date of Booking</label><input type="date" name="dateOfBooking" value={formData.dateOfBooking} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลารับ Set</label><input type="time" name="timeReceiveSet" value={formData.timeReceiveSet} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none text-gray-600" /></div>
+               
+               {/* แถวที่ 9: ผู้จอง | ผู้รับจอง */}
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ผู้จอง</label><input type="text" name="booker" value={formData.booker} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">ผู้รับจอง</label><input type="text" name="receiver" value={formData.receiver} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" /></div>
+               
+               {/* แถวที่ 10: หมายเหตุ (ขยายเต็มบรรทัด) */}
                <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-start gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base sm:mt-2">หมายเหตุ</label><textarea name="remarks" value={formData.remarks} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none h-16 resize-none"></textarea></div>
 
+               {/* ตัวเลือกสถานะยืนยัน/เลื่อน/ยกเลิก */}
                {editingCase && (
                   <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 sm:gap-10 mt-4 md:mt-6 p-4 bg-white rounded-xl border border-gray-200 shadow-sm">
                     <label className="flex items-center gap-2 cursor-pointer font-black text-green-600 text-lg md:text-xl"><input type="radio" name="status" value="ยืนยัน" checked={formData.status === 'ยืนยัน'} onChange={handleChange} className="accent-green-600 w-5 h-5 md:w-6 md:h-6" /> ยืนยันผ่าตัด</label>
@@ -807,7 +880,7 @@ export default function ScheduleBoard() {
 
                <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center mt-6 gap-3 sm:gap-4">
                  <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-8 md:px-12 py-3 rounded-full text-lg md:text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">บันทึก</button>
-                 {editingCase && currentUser?.role === 'admin' && <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">🗑️ ลบข้อมูล</button>}
+                 {editingCase && currentUser?.role === 'admin' && <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">ลบข้อมูล</button>}
                  <button type="button" onClick={() => setIsModalOpen(false)} className="mt-2 sm:mt-0 sm:ml-4 text-gray-400 hover:text-gray-700 font-bold cursor-pointer text-base md:text-lg underline underline-offset-4 decoration-2 transition-colors">ปิด/ยกเลิก</button>
                </div>
             </form>
@@ -820,7 +893,7 @@ export default function ScheduleBoard() {
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-white border border-[#facba8] rounded-2xl shadow-2xl w-full max-w-md p-6 relative flex flex-col my-8 md:my-auto">
             <div className="absolute top-0 left-0 w-full h-3 bg-[#ffdac1] rounded-t-2xl"></div>
-            <h2 className="text-2xl font-black text-center mb-6 mt-2 text-[#4a2b38]">{editingNurseLog ? 'แก้ไข On call' : 'On call'}</h2>
+            <h2 className="text-2xl font-black text-center mb-6 mt-2 text-[#4a2b38]">{editingNurseLog ? 'แก้ไขตาราง On call' : 'บันทึกตาราง On call'}</h2>
             <form onSubmit={handleSaveNurseForm} className="space-y-4">
                <div>
                  <label className="block text-sm font-bold text-gray-700 mb-1">วันที่บันทึก</label>
@@ -831,7 +904,7 @@ export default function ScheduleBoard() {
                <div><label className="block text-sm font-bold text-gray-700 mb-1">บ.</label><input type="text" name="b" value={nurseFormData.b} onChange={handleNurseChange} className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none" /></div>
                <div><label className="block text-sm font-bold text-gray-700 mb-1">บ/ด</label><input type="text" name="bd" value={nurseFormData.bd} onChange={handleNurseChange} className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none" /></div>
                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                 <button type="submit" className="flex-1 bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] py-3 rounded-xl font-black shadow-md transition-transform hover:scale-105">บันทึก</button>
+                 <button type="submit" className="flex-1 bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] py-3 rounded-xl font-black shadow-md transition-transform hover:scale-105">💾 บันทึก</button>
                  <button type="button" onClick={() => setIsNurseModalOpen(false)} className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold transition-colors">ยกเลิก</button>
                </div>
             </form>
@@ -844,11 +917,7 @@ export default function ScheduleBoard() {
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-[#fdfbf2] border border-[#fbc2eb] rounded-2xl shadow-2xl w-full max-w-4xl p-6 md:p-8 relative flex flex-col my-8 md:my-auto">
             <h2 className="text-xl md:text-3xl font-black text-center mb-4 text-[#4a2b38] bg-[#fbc2eb] py-2 rounded-xl shadow-sm">
-              📊 Dashboard สรุปคิวผ่าตัด ({
-                dashboardTab === 'daily' ? 'รายวัน' : 
-                dashboardTab === 'weekly' ? 'รายสัปดาห์' : 
-                dashboardTab === 'monthly' ? 'รายเดือน' : 'รายปี'
-              })
+              Dashboard 
             </h2>
             
             <div className="flex justify-center mb-6">
@@ -867,7 +936,7 @@ export default function ScheduleBoard() {
               <div className="bg-[#fff0f1] p-4 rounded-xl shadow-sm border border-[#ff9a9e] text-center"><div className="text-[#b04a50] font-bold text-sm">ยกเลิก</div><div className="text-3xl md:text-5xl font-black text-[#e85a62]">{dashCases.filter(c => c.status === 'ยกเลิก').length}</div></div>
             </div>
 
-            <h3 className="text-base md:text-lg font-bold text-gray-700 mb-3 border-b pb-2">🏥 จำนวนเคสรายห้อง (เฉพาะที่ยืนยัน)</h3>
+            <h3 className="text-base md:text-lg font-bold text-gray-700 mb-3 border-b pb-2">OR</h3>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center">
               {['1','2','3','4','5','6','นอกสถานที่'].map(r => {
                  const roomCount = dashCases.filter(c => c.status === 'ยืนยัน' && c.room === r).length;
