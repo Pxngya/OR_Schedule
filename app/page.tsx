@@ -24,6 +24,7 @@ export default function ScheduleBoard() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [currentDateText, setCurrentDateText] = useState('');
   const [currentTimeText, setCurrentTimeText] = useState('');
   const [currentMinsFromMidnight, setCurrentMinsFromMidnight] = useState(0); 
   const [cases, setCases] = useState<any[]>([]);
@@ -39,10 +40,6 @@ export default function ScheduleBoard() {
   
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [statusUpdateCase, setStatusUpdateCase] = useState<any>(null);
-
-  // 🚀 States สำหรับ Dashboard รูปแบบใหม่
-  const [dashboardTab, setDashboardTab] = useState('daily');
-  const [allDashboardCases, setAllDashboardCases] = useState<any[]>([]);
 
   const initialForm = { 
     surgeryDate: '', time: '', room: '1', hn: '', name: '', age: '', operation: '', 
@@ -207,7 +204,6 @@ export default function ScheduleBoard() {
     setIsNurseModalOpen(true); setIsSpeedDialOpen(false);
   };
 
-  // 🚀 ฟังก์ชันดึงข้อมูลทั้งหมดสำหรับ Dashboard ทุกแท็บ
   const handleOpenDashboard = async () => { 
     setIsDashboardOpen(true); 
     setIsSpeedDialOpen(false); 
@@ -252,6 +248,7 @@ export default function ScheduleBoard() {
         inc: nurseFormData.inc, call: nurseFormData.call, b: nurseFormData.b, bd: nurseFormData.bd,
         isNurseLog: true, actionBy: currentUser.name || currentUser.empId
       };
+      
       const method = editingNurseLog ? 'PUT' : 'POST';
       if (editingNurseLog) payload._id = editingNurseLog._id;
 
@@ -283,7 +280,6 @@ export default function ScheduleBoard() {
   const handleChange = (e: any) => { const { name, value } = e.target; setFormData(prev => ({ ...prev, [name]: value })); };
   const handleNurseChange = (e: any) => { const { name, value } = e.target; setNurseFormData(prev => ({ ...prev, [name]: value })); };
 
-  // 🚀 Logic คำนวณ Dashboard
   let dashCases: any[] = [];
   if (isDashboardOpen) {
      if (dashboardTab === 'daily') {
@@ -406,7 +402,6 @@ export default function ScheduleBoard() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {/* 🚀 Date Picker บนหน้าจอทีวี เปลี่ยนวันที่ได้เลย */}
               <div className="bg-white border border-gray-200 px-3 py-1 rounded-lg shadow-sm flex items-center gap-3 hover:bg-gray-50 transition-colors">
                 <input 
                   type="date" 
@@ -663,37 +658,44 @@ export default function ScheduleBoard() {
               </div>
             </>
           ) : (
-            <>
-              <div className="bg-white border border-gray-300 shadow-md rounded-b-xl overflow-hidden mb-10">
-                   <table className="w-full text-center border-collapse">
-                       <thead className="bg-[#fffaf5]">
-                           <tr className="text-[#4a2b38]">
-                               <th className="p-3 border-b border-gray-200">วันที่</th>
-                               <th className="p-3 border-b border-gray-200">Inc.</th>
-                               <th className="p-3 border-b border-gray-200">Call</th>
-                               <th className="p-3 border-b border-gray-200">บ.</th>
-                               <th className="p-3 border-b border-gray-200">บ/ด</th>
-                               <th className="p-3 border-b border-gray-200 w-32">จัดการ</th>
-                           </tr>
-                       </thead>
-                       <tbody>
-                           {nurseLogs.map((log) => (
-                               <tr key={log._id} className="border-b border-gray-100 hover:bg-[#fffdfa] cursor-pointer transition-colors" onClick={() => handleOpenNurseModal(log)}>
-                                   <td className="p-3 font-bold">{log.date} {log.monthYear}</td>
-                                   <td className="p-3">{log.inc || '-'}</td>
-                                   <td className="p-3">{log.call || '-'}</td>
-                                   <td className="p-3">{log.b || '-'}</td>
-                                   <td className="p-3">{log.bd || '-'}</td>
-                                   <td className="p-3">
-                                       <button onClick={(e) => { e.stopPropagation(); handleDeleteCase(log._id, true); }} className="text-red-500 hover:text-red-700 text-xs font-bold bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded shadow-sm">ลบ</button>
-                                   </td>
-                               </tr>
-                           ))}
-                           {nurseLogs.length === 0 && <tr><td colSpan={6} className="p-8 text-gray-400 font-bold">ยังไม่มีข้อมูลสมุดพยาบาลในเดือนนี้</td></tr>}
-                       </tbody>
-                   </table>
+            <div className="flex justify-center mt-2">
+              <div className="bg-white border border-gray-300 shadow-md rounded-xl overflow-hidden w-full max-w-3xl mb-10">
+                   {nurseLogs.length > 0 ? nurseLogs.map((log) => (
+                       <div key={log._id} className="relative cursor-pointer hover:bg-[#fffdfa] transition-colors" onClick={() => handleOpenNurseModal(log)}>
+                           <table className="w-full text-left border-collapse text-base md:text-lg">
+                               <tbody>
+                                   <tr className="border-b border-gray-100">
+                                       <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">Inc.</th>
+                                       <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">{log.inc || '-'}</td>
+                                   </tr>
+                                   <tr className="border-b border-gray-100">
+                                       <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">Call</th>
+                                       <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">{log.call || '-'}</td>
+                                   </tr>
+                                   <tr className="border-b border-gray-100">
+                                       <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">บ.</th>
+                                       <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">{log.b || '-'}</td>
+                                   </tr>
+                                   <tr>
+                                       <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">บ/ด</th>
+                                       <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">{log.bd || '-'}</td>
+                                   </tr>
+                               </tbody>
+                           </table>
+                           <div className="bg-gray-50 p-2 md:p-3 flex justify-between items-center border-t border-gray-200">
+                               <span className="text-xs text-gray-500 font-bold ml-2 md:ml-4">* คลิกที่บริเวณตารางเพื่อแก้ไขข้อมูล</span>
+                               <button onClick={(e) => { e.stopPropagation(); handleDeleteCase(log._id, true); }} className="text-red-500 hover:text-red-700 text-sm font-bold bg-red-100 hover:bg-red-200 px-4 py-1.5 rounded-lg shadow-sm transition-colors mr-2">ลบข้อมูล</button>
+                           </div>
+                       </div>
+                   )) : (
+                       <div className="p-10 md:p-16 text-center flex flex-col items-center justify-center gap-3">
+                           <span className="text-5xl">📋</span>
+                           <span className="text-gray-400 font-bold text-lg md:text-xl">ยังไม่มีข้อมูลตาราง On call ในวันนี้</span>
+                           <button onClick={() => handleOpenNurseModal(null)} className="mt-2 bg-[#ffdac1] text-[#4a2b38] text-sm px-6 py-2 rounded-full font-bold hover:bg-[#facba8] shadow-sm transition-transform hover:scale-105">+ เพิ่มOn call</button>
+                       </div>
+                   )}
               </div>
-            </>
+            </div>
           )}
         </>
       )}
@@ -703,10 +705,10 @@ export default function ScheduleBoard() {
         <div className="fixed bottom-6 md:bottom-10 right-4 md:right-10 z-50 flex flex-col items-end gap-3">
           {isSpeedDialOpen && (
             <div className="flex flex-col gap-3 mb-2 items-end animate-fade-in-up">
-              <a href="?tv=true" target="_blank" rel="noopener noreferrer" className="bg-[#a2c2e8] hover:bg-[#8eb3df] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(162,194,232,0.6)] transition-transform hover:scale-105 flex items-center gap-3">Display</a>
-              <button onClick={handleOpenDashboard} className="bg-[#fbc2eb] hover:bg-[#f0addd] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(251,194,235,0.6)] transition-transform hover:scale-105 flex items-center gap-3">Dashboard</button>
-              <button onClick={() => handleOpenNurseModal(null)} className="bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(255,218,193,0.6)] transition-transform hover:scale-105 flex items-center gap-3">On call</button>
-              <button onClick={() => handleOpenModal(null)} className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(212,180,221,0.6)] transition-transform hover:scale-105 flex items-center gap-3">เพิ่มคิวผ่าตัด</button>
+              <a href="?tv=true" target="_blank" rel="noopener noreferrer" className="bg-[#a2c2e8] hover:bg-[#8eb3df] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(162,194,232,0.6)] transition-transform hover:scale-105 flex items-center gap-3 whitespace-nowrap">Display</a>
+              <button onClick={handleOpenDashboard} className="bg-[#fbc2eb] hover:bg-[#f0addd] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(251,194,235,0.6)] transition-transform hover:scale-105 flex items-center gap-3 whitespace-nowrap">Dashboard</button>
+              <button onClick={() => handleOpenNurseModal(null)} className="bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(255,218,193,0.6)] transition-transform hover:scale-105 flex items-center gap-3 whitespace-nowrap">On call</button>
+              <button onClick={() => handleOpenModal(null)} className="bg-[#d4b4dd] hover:bg-[#c29bce] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(212,180,221,0.6)] transition-transform hover:scale-105 flex items-center gap-3 whitespace-nowrap">เพิ่มคิวผ่าตัด</button>
             </div>
           )}
           <button onClick={() => setIsSpeedDialOpen(!isSpeedDialOpen)} className={`w-14 h-14 md:w-16 md:h-16 text-white rounded-full text-4xl shadow-[0_10px_20px_rgba(184,139,201,0.5)] flex items-center justify-center transition-all duration-300 z-50 cursor-pointer border-2 border-white ${isSpeedDialOpen ? 'bg-[#ff9a9e] hover:bg-[#ff7b81] rotate-45 scale-110' : 'bg-[#b88bc9] hover:bg-[#a67ab5] hover:scale-110'}`}>+</button>
@@ -748,14 +750,14 @@ export default function ScheduleBoard() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
           <div className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-8 relative my-8 md:my-auto flex flex-col">
-            <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200">{editingCase ? '📝 แก้ไขข้อมูลคนไข้' : '➕ เพิ่มข้อมูลคนไข้ใหม่'}</h2>
+            <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200">{editingCase ? 'แก้ไขข้อมูลคนไข้' : 'เพิ่มข้อมูลคนไข้ใหม่'}</h2>
             <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-5">
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                  <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / OR</label>
                  <div className="flex w-full sm:flex-1 gap-2 items-center">
                    {formData.time === 'tf' || formData.time === 'TF' ? (
-                     <div className="border border-gray-300 p-2 flex-1 bg-gray-100 rounded-lg text-center font-bold text-gray-500">TF (To Follow)</div>
+                     <div className="border border-gray-300 p-2 flex-1 bg-gray-100 rounded-lg text-center font-bold text-gray-500">TF)</div>
                    ) : (
                      <input type="time" name="time" value={formData.time} onChange={handleChange} className="border border-gray-300 p-2 flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-mono font-bold" required={formData.time !== 'tf' && formData.time !== 'TF'} />
                    )}
@@ -763,13 +765,13 @@ export default function ScheduleBoard() {
                      <input type="checkbox" className="w-4 h-4 accent-[#b88bc9]" checked={formData.time === 'tf' || formData.time === 'TF'} onChange={(e) => setFormData({...formData, time: e.target.checked ? 'tf' : ''})} />
                      เคส TF
                    </label>
-                   <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-24 sm:w-28 bg-blue-50 text-blue-800 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none font-bold cursor-pointer">
+                   <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-24 sm:w-28 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer">
                      {[1,2,3,4,5,6,'นอกสถานที่'].map(r => <option key={r} value={r}>{r === 'นอกสถานที่' ? 'นอกสถานที่' : `OR ${r}`}</option>)}
                    </select>
                  </div>
                </div>
                
-               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 bg-[#f3eff4] p-3 rounded-xl border border-gray-200">
+               <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 p-3 rounded-xl border border-gray-200 bg-white">
                  <label className="sm:w-32 sm:text-right font-black text-[#4a2b38] text-sm sm:text-base">สถานะผู้ป่วย</label>
                  <select name="patientStatus" value={formData.patientStatus || ''} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer">
                     <option value="">-- ไม่ระบุ (รอดำเนินการ) --</option>
@@ -804,7 +806,7 @@ export default function ScheduleBoard() {
                )}
 
                <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center mt-6 gap-3 sm:gap-4">
-                 <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-8 md:px-12 py-3 rounded-full text-lg md:text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">💾 บันทึก</button>
+                 <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-8 md:px-12 py-3 rounded-full text-lg md:text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">บันทึก</button>
                  {editingCase && currentUser?.role === 'admin' && <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">🗑️ ลบข้อมูล</button>}
                  <button type="button" onClick={() => setIsModalOpen(false)} className="mt-2 sm:mt-0 sm:ml-4 text-gray-400 hover:text-gray-700 font-bold cursor-pointer text-base md:text-lg underline underline-offset-4 decoration-2 transition-colors">ปิด/ยกเลิก</button>
                </div>
@@ -813,12 +815,12 @@ export default function ScheduleBoard() {
         </div>
       )}
 
-      {/* 🟢 Modal 2: ฟอร์มสมุดพยาบาล */}
+      {/* 🟢 Modal 2: ฟอร์มตาราง On call (สมุดพยาบาล) */}
       {isNurseModalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-white border border-[#facba8] rounded-2xl shadow-2xl w-full max-w-md p-6 relative flex flex-col my-8 md:my-auto">
             <div className="absolute top-0 left-0 w-full h-3 bg-[#ffdac1] rounded-t-2xl"></div>
-            <h2 className="text-2xl font-black text-center mb-6 mt-2 text-[#4a2b38]">{editingNurseLog ? 'แก้ไขตาราง On call' : 'บันทึกตาราง On call'}</h2>
+            <h2 className="text-2xl font-black text-center mb-6 mt-2 text-[#4a2b38]">{editingNurseLog ? 'แก้ไข On call' : 'On call'}</h2>
             <form onSubmit={handleSaveNurseForm} className="space-y-4">
                <div>
                  <label className="block text-sm font-bold text-gray-700 mb-1">วันที่บันทึก</label>
@@ -829,7 +831,7 @@ export default function ScheduleBoard() {
                <div><label className="block text-sm font-bold text-gray-700 mb-1">บ.</label><input type="text" name="b" value={nurseFormData.b} onChange={handleNurseChange} className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none" /></div>
                <div><label className="block text-sm font-bold text-gray-700 mb-1">บ/ด</label><input type="text" name="bd" value={nurseFormData.bd} onChange={handleNurseChange} className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none" /></div>
                <div className="flex flex-col sm:flex-row gap-3 pt-4">
-                 <button type="submit" className="flex-1 bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] py-3 rounded-xl font-black shadow-md transition-transform hover:scale-105">💾 บันทึก</button>
+                 <button type="submit" className="flex-1 bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] py-3 rounded-xl font-black shadow-md transition-transform hover:scale-105">บันทึก</button>
                  <button type="button" onClick={() => setIsNurseModalOpen(false)} className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl font-bold transition-colors">ยกเลิก</button>
                </div>
             </form>
@@ -837,7 +839,7 @@ export default function ScheduleBoard() {
         </div>
       )}
 
-      {/* 🟢 Modal 3: Dashboard สรุปผล (🚀 อัปเกรดมีแท็บ 4 แท็บ) */}
+      {/* 🟢 Modal 3: Dashboard สรุปผล */}
       {isDashboardOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto">
           <div className="bg-[#fdfbf2] border border-[#fbc2eb] rounded-2xl shadow-2xl w-full max-w-4xl p-6 md:p-8 relative flex flex-col my-8 md:my-auto">
@@ -849,7 +851,6 @@ export default function ScheduleBoard() {
               })
             </h2>
             
-            {/* 🚀 ปุ่มสลับมุมมอง Dashboard */}
             <div className="flex justify-center mb-6">
                <div className="bg-[#f3eff4] p-1.5 rounded-full flex flex-wrap justify-center gap-1 sm:gap-2 shadow-inner text-sm md:text-base">
                  <button onClick={() => setDashboardTab('daily')} className={`px-4 sm:px-6 py-1.5 rounded-full font-bold transition-all ${dashboardTab === 'daily' ? 'bg-white text-[#b88bc9] shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}>รายวัน</button>
