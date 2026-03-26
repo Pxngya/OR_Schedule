@@ -80,13 +80,16 @@ export default function ScheduleBoard() {
 
   const handleLogout = () => { localStorage.removeItem('or_user'); setCurrentUser(null); };
 
-  const sendLineNotify = async (message: string) => {
+ const sendLineNotify = async (message: string) => {
     try {
-      await fetch('/api/line', {
+      const endpoint = '/api/webhook'; 
+
+      await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message })
       });
+      
     } catch (error) {
       console.error("Line Notify Error:", error);
     }
