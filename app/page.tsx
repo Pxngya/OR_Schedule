@@ -575,17 +575,17 @@ export default function ScheduleBoard() {
                   <tbody>
                     {tvDisplayCases.map((c, index) => (
                       <tr key={c._id || index} className="border-b border-gray-200 hover:bg-[#fefafc] transition-colors cursor-pointer" onClick={() => { setStatusUpdateCase(c); setIsStatusModalOpen(true); }}>
-                        <td className="border-r border-gray-200 font-black text-blue-700 text-sm lg:text-base whitespace-nowrap py-3">{c.room === 'นอกสถานที่' ? 'นอก' : c.room}</td>
-                        <td className="border-r border-gray-200 font-black text-[#b88bc9] text-sm lg:text-base whitespace-nowrap py-3">{c.time === 'tf' || c.time === 'TF' ? 'TF' : c.time}</td>
+                        <td className="border-r border-gray-200 font-black text-blue-700 text-2xl lg:text-base whitespace-nowrap py-3">{c.room === 'นอกสถานที่' ? 'นอก' : c.room}</td>
+                        <td className="border-r border-gray-200 font-black text-[#b88bc9] text-2xl lg:text-base whitespace-nowrap py-3">{c.time === 'tf' || c.time === 'TF' ? 'TF' : c.time}</td>
                         <td className="border-r border-gray-200 text-center align-middle py-3">{renderStatusDot(c.patientStatus)}</td>
                         <td className="border-r border-gray-200 text-left px-3 font-black text-base lg:text-lg break-words py-3 leading-snug">{c.name}</td>
-                        <td className="border-r border-gray-200 font-mono text-sm lg:text-base whitespace-nowrap py-3">{formatHN(c.hn)}</td>
-                        <td className="border-r border-gray-200 text-xs lg:text-sm px-3 break-words py-3 leading-snug">{c.specialEquipment}</td>
-                        <td className="border-r border-gray-200 text-left text-xs lg:text-sm px-3 break-words py-3 leading-snug">{c.operation}</td>
-                        <td className="border-r border-gray-200 text-xs lg:text-sm px-3 break-words py-3 leading-snug">{c.surgeon}</td>
-                        <td className="border-r border-gray-200 text-xs lg:text-sm px-2 whitespace-nowrap py-3">{c.anesthesiologist}</td>
-                        <td className="border-r border-gray-200 text-xs lg:text-sm px-2 whitespace-nowrap py-3">{c.typeOfAnesth}</td>
-                        <td className="border-r border-gray-200 text-[#4a2b38] text-xs lg:text-sm px-3 break-words py-3 leading-snug">{c.team}</td>
+                        <td className="border-r border-gray-200 font-mono text-2xl lg:text-base whitespace-nowrap py-3">{formatHN(c.hn)}</td>
+                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.specialEquipment}</td>
+                        <td className="border-r border-gray-200 text-left text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.operation}</td>
+                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.surgeon}</td>
+                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">{c.anesthesiologist}</td>
+                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">{c.typeOfAnesth}</td>
+                        <td className="border-r border-gray-200 text-[#4a2b38] text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.team}</td>
                       </tr>
                     ))}
                     {[...Array(Math.max(0, 10 - tvDisplayCases.length))].map((_, rowIndex) => (
