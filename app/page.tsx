@@ -525,8 +525,8 @@ export default function ScheduleBoard() {
                       const activeCase = tvDisplayCases.find(c => c.room === r && (c.patientStatus === 'In OR' || c.patientStatus === 'Send to'));
                       return (
                         <div key={r} className={`flex flex-col justify-center items-center text-center w-full rounded-xl border transition-colors shadow-sm min-h-0 ${activeCase ? 'bg-[#fff0f1] border-[#ff9a9e] text-[#b04a50]' : 'bg-white border-gray-200 text-gray-400'}`}>
-                          <div className="text-[10px] font-bold opacity-80 uppercase w-full text-center">OR {r}</div>
-                          <div className={`text-sm lg:text-base font-black w-full text-center ${activeCase ? '' : 'text-[#3ab795]'}`}>{activeCase ? 'กำลังผ่าตัด' : 'ว่าง'}</div>
+                          <div className="text-xl font-bold opacity-80 uppercase w-full text-center">OR {r}</div>
+                          <div className={`text-xl lg:text-base font-black w-full text-center ${activeCase ? '' : 'text-[#3ab795]'}`}>{activeCase ? 'กำลังผ่าตัด' : 'ว่าง'}</div>
                         </div>
                       );
                    })}
