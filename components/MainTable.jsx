@@ -50,15 +50,14 @@ const MainTable = ({
               <tr
                 key={c._id || index}
                 onClick={() => handleOpenModal(c)}
-                className={`border-b border-gray-300 cursor-pointer ${
-                  c.status === 'ยกเลิก'
+                className={`border-b border-gray-300 cursor-pointer ${c.status === 'ยกเลิก'
                     ? 'bg-red-50 opacity-50'
                     : c.status === 'เลื่อนวัน'
-                    ? 'bg-yellow-50 opacity-50'
-                    : !c.status
-                    ? 'bg-gray-50 text-gray-500'
-                    : 'hover:bg-[#fdfaf2]'
-                }`}
+                      ? 'bg-yellow-50 opacity-50'
+                      : !c.status
+                        ? 'bg-gray-50 text-gray-500'
+                        : 'hover:bg-[#fdfaf2]'
+                  }`}
               >
                 <td className="border-r border-gray-300 font-bold text-red-600 py-3">
                   {c.status === 'ยกเลิก' ? '✓' : ''}
@@ -74,7 +73,9 @@ const MainTable = ({
                   {c.time?.toLowerCase() === 'tf' ? 'TF' : c.time}
                 </td>
                 <td className="border-r border-gray-300 text-blue-700 font-black py-3">
-                  {c.room}
+                  {['1', '2', '3', '4', '5', '6'].includes(String(c.room))
+                    ? `OR ${c.room}`
+                    : c.room}
                 </td>
                 <td className="border-r border-gray-300 py-3">
                   {renderStatusDot(c.patientStatus)}

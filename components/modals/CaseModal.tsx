@@ -37,8 +37,17 @@ export default function CaseModal({
                                 <input type="checkbox" className="w-4 h-4 accent-[#b88bc9]" checked={formData.time === 'tf' || formData.time === 'TF'} onChange={(e) => setFormData({ ...formData, time: e.target.checked ? 'tf' : '' })} />
                                 เคส TF
                             </label>
-                            <select name="room" value={formData.room || '1'} onChange={handleChange} className="border border-gray-300 p-2 w-24 sm:w-28 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer">
-                                {[1, 2, 3, 4, 5, 6, 'นอกสถานที่'].map(r => <option key={r} value={r}>{r === 'นอกสถานที่' ? 'นอกสถานที่' : `OR ${r}`}</option>)}
+                            <select
+                                name="room"
+                                value={formData.room || '1'}
+                                onChange={handleChange}
+                                className="border border-gray-300 p-2 w-24 sm:w-28 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer"
+                            >
+                                {[1, 2, 3, 4, 5, 6, 'IVF', 'GI', 'MRI/CT', 'Cath lab'].map(r => (
+                                    <option key={r} value={r}>
+                                        {typeof r === 'number' ? `OR ${r}` : r}
+                                    </option>
+                                ))}
                             </select>
                         </div>
                     </div>
