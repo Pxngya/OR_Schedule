@@ -35,7 +35,7 @@ export default function CaseModal({
                             )}
                             <label className="flex items-center gap-1.5 text-sm font-bold text-[#b88bc9] whitespace-nowrap cursor-pointer bg-white px-2 py-1.5 border border-gray-300 rounded-lg shadow-sm">
                                 <input type="checkbox" className="w-4 h-4 accent-[#b88bc9]" checked={formData.time === 'tf' || formData.time === 'TF'} onChange={(e) => setFormData({ ...formData, time: e.target.checked ? 'tf' : '' })} />
-                                เคส TF
+                                TF
                             </label>
                             <select
                                 name="room"
@@ -63,7 +63,7 @@ export default function CaseModal({
                         <select name="patientStatus" value={formData.patientStatus || ''} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none font-bold cursor-pointer">
                             <option value="">-- ไม่ระบุ --</option>
                             <option value="In OR">In OR</option>
-                            <option value="Send to">Send to </option>
+                            <option value="Call">Call</option>
                             <option value="Recovery">Recovery </option>
                             <option value="Discharge">Discharge </option>
                         </select>
@@ -105,7 +105,25 @@ export default function CaseModal({
 
                     <div className="col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-center mt-6 gap-3 sm:gap-4">
                         <button type="submit" className="bg-[#d4b4dd] text-[#4a2b38] px-8 md:px-12 py-3 rounded-full text-lg md:text-xl hover:bg-[#c29bce] font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">บันทึก</button>
-                        {editingCase && currentUser?.role === 'admin' && <button type="button" onClick={() => handleDeleteCase(editingCase._id)} className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto">ลบข้อมูล</button>}
+                        {editingCase && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const inputHN = prompt('กรอก HN เพื่อยืนยันการลบ');
+
+                                    if (!inputHN) return;
+
+                                    if (inputHN === editingCase.hn) {
+                                        handleDeleteCase(editingCase._id);
+                                    } else {
+                                        alert('HN ไม่ถูกต้อง');
+                                    }
+                                }}
+                                className="bg-red-500 text-white px-8 py-3 rounded-full text-lg md:text-xl hover:bg-red-600 font-black transition-transform shadow-lg hover:scale-105 border-2 border-transparent w-full sm:w-auto"
+                            >
+                                ลบข้อมูล
+                            </button>
+                        )}
                         <button type="button" onClick={onClose} className="mt-2 sm:mt-0 sm:ml-4 text-gray-400 hover:text-gray-700 font-bold cursor-pointer text-base md:text-lg underline underline-offset-4 decoration-2 transition-colors">ปิด/ยกเลิก</button>
                     </div>
                 </form>

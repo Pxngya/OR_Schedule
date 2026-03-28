@@ -187,6 +187,7 @@ export default function ScheduleBoard() {
   const {
     activeCases,
     inOrCount,
+    callCount,
     recoveryCount,
     dischargeCount,
   } = useTVBoard(tvDisplayCases, isTVMode);
@@ -237,6 +238,7 @@ export default function ScheduleBoard() {
           tvDisplayCases={tvDisplayCases}
           activeCases={activeCases}
           inOrCount={inOrCount}
+          callCount={callCount}
           recoveryCount={recoveryCount}
           dischargeCount={dischargeCount}
           currentMonthYear={currentMonthYear}

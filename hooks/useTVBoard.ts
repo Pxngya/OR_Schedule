@@ -25,6 +25,10 @@ export const useTVBoard = (
         c.patientStatus === "Send to"
     ).length;
 
+    const callCount = tvDisplayCases.filter(
+      c => c.patientStatus === 'Call'
+    ).length;
+
     const recoveryCount = tvDisplayCases.filter(
       c => c.patientStatus === "Recovery"
     ).length;
@@ -36,6 +40,7 @@ export const useTVBoard = (
     return {
       activeCases,
       inOrCount,
+      callCount,
       recoveryCount,
       dischargeCount,
     };

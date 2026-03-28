@@ -45,11 +45,11 @@ export default function StatusModal({
           </button>
 
           <button
-            onClick={() => handleClick('Send to')}
-            className="bg-[#fff0f1] hover:bg-[#ffe0e2] border-2 border-[#ff9a9e] text-[#b04a50] py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105"
+            onClick={() => handleClick('Call')}
+            className="bg-gray-200 hover:bg-gray-300 border-2 border-gray-500 text-gray-800 py-4 rounded-xl font-black text-xl flex items-center justify-center gap-3 transition-transform hover:scale-105"
           >
-            <span className="w-5 h-5 rounded-full bg-[#ff9a9e] animate-pulse shadow-sm"></span>
-            Send to
+            <span className="w-5 h-5 rounded-full bg-gray-600 shadow-sm"></span>
+            Call
           </button>
 
           <button

@@ -3,35 +3,25 @@
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import MobileMode from "@/components/MobileMode";
 
-export default function TVMode(props) {
-    const isMobile = useMediaQuery("(max-width: 768px)");
-
-    // 👉 Mobile Mode
-    if (isMobile) {
-        return <MobileMode {...props} />;
-    }
-
-    // 👉 TV / Desktop Mode
-    const {
-        tvDisplayCases,
-        activeCases,
-        inOrCount,
-        callCount,
-        recoveryCount,
-        dischargeCount,
-        currentMonthYear,
-        selectedDate,
-        setCurrentMonthYear,
-        setSelectedDate,
-        currentTimeText,
-        todaysNurseLog,
-        tvThClass,
-        renderStatusDot,
-        formatHN,
-        setStatusUpdateCase,
-        setIsStatusModalOpen
-    } = props;
-
+export default function TVMode({
+    tvDisplayCases,
+    activeCases,
+    inOrCount,
+    callCount,
+    recoveryCount,
+    dischargeCount,
+    currentMonthYear,
+    selectedDate,
+    setCurrentMonthYear,
+    setSelectedDate,
+    currentTimeText,
+    todaysNurseLog,
+    tvThClass,
+    renderStatusDot,
+    formatHN,
+    setStatusUpdateCase,
+    setIsStatusModalOpen
+}) {
     return (
         <>
             <div className="flex justify-between items-center shrink-0 h-[5vh] px-2 mt-1">
