@@ -51,12 +51,12 @@ const MainTable = ({
                 key={c._id || index}
                 onClick={() => handleOpenModal(c)}
                 className={`border-b border-gray-300 cursor-pointer ${c.status === 'ยกเลิก'
-                    ? 'bg-red-50 opacity-50'
-                    : c.status === 'เลื่อนวัน'
-                      ? 'bg-yellow-50 opacity-50'
-                      : !c.status
-                        ? 'bg-gray-50 text-gray-500'
-                        : 'hover:bg-[#fdfaf2]'
+                  ? 'bg-red-50 opacity-50'
+                  : c.status === 'เลื่อนวัน'
+                    ? 'bg-yellow-50 opacity-50'
+                    : !c.status
+                      ? 'bg-gray-50 text-gray-500'
+                      : 'hover:bg-[#fdfaf2]'
                   }`}
               >
                 <td className="border-r border-gray-300 font-bold text-red-600 py-3">
@@ -135,7 +135,11 @@ const MainTable = ({
       <div className="flex flex-wrap gap-4 justify-center mt-3 text-xs md:text-sm font-bold text-gray-500">
         <div className="flex items-center gap-1.5">
           <span className="w-3.5 h-3.5 rounded-full bg-[#ff9a9e]"></span>
-          In OR / Send to
+          In OR
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3.5 h-3.5 rounded-full bg-gray-500"></span>
+          Call
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3.5 h-3.5 rounded-full bg-[#f6d365]"></span>
