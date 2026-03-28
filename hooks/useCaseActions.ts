@@ -91,16 +91,13 @@ export const useCaseActions = ({
 
         if (method === "POST") {
           sendLineNotify(
-            `🟢 เพิ่มคิวใหม่: OR ${payloadData.room} | เวลา ${
-              payloadData.time || "TF"
+            `🟢 เพิ่มคิวใหม่: OR ${payloadData.room} | เวลา ${payloadData.time || "TF"
             } น. | คุณ ${payloadData.name}`
           );
         } else {
           sendLineNotify(
-            `📝 อัปเดตคิว: OR ${payloadData.room} | เวลา ${
-              payloadData.time || "TF"
-            } น. | คุณ ${payloadData.name} | สถานะ: ${
-              payloadData.status || "รอระบุ"
+            `📝 อัปเดตคิว: OR ${payloadData.room} | เวลา ${payloadData.time || "TF"
+            } น. | คุณ ${payloadData.name} | สถานะ: ${payloadData.status || "รอระบุ"
             }`
           );
         }
@@ -130,7 +127,7 @@ export const useCaseActions = ({
 
       const patientName = encodeURIComponent(
         editingCase?.name ||
-          (isNurseLog ? "Log พยาบาล" : "ไม่ทราบชื่อ")
+        (isNurseLog ? "Log พยาบาล" : "ไม่ทราบชื่อ")
       );
 
       const res = await fetch(
@@ -156,12 +153,12 @@ export const useCaseActions = ({
     }
   };
 
-  const handleUpdatePatientStatus = async (newStatus: string) => {
-    if (!statusUpdateCase) return;
+  const handleUpdatePatientStatus = async (caseItem: any, newStatus: string) => {
+    if (!caseItem) return;
 
     try {
       const payload = {
-        ...statusUpdateCase,
+        ...caseItem,
         patientStatus: newStatus,
         actionBy:
           currentUser?.name ||
@@ -175,14 +172,10 @@ export const useCaseActions = ({
         body: JSON.stringify(payload),
       });
 
-      setIsStatusModalOpen(false);
-      setStatusUpdateCase(null);
-
       fetchCases();
 
       sendLineNotify(
-        `อัปเดตสถานะ: คุณ ${payload.name} -> เปลี่ยนเป็น [ ${
-          newStatus || "ว่าง"
+        `อัปเดตสถานะ: คุณ ${payload.name} -> เปลี่ยนเป็น [ ${newStatus || "ว่าง"
         } ]`
       );
     } catch (error) {
@@ -226,10 +219,84 @@ export const useCaseActions = ({
     }
   };
 
+  const handleUpdateCaseStatus = async (caseItem: any, newStatus: string) => {
+    if (!caseItem) return;
+
+    try {
+      const payload = {
+        ...caseItem,
+        status: newStatus,
+        actionBy:
+          currentUser?.name ||
+          currentUser?.empId ||
+          "TV Update",
+      };
+
+      await fetch("/api/cases", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      fetchCases();
+
+      sendLineNotify(
+        `อัปเดตสถานะคิว: คุณ ${payload.name} -> ${newStatus}`
+      );
+    } catch (error) {
+      console.error("Error updating case status:", error);
+    }
+  };
+
+  const handlePostponeCase = async (caseItem: any, newDate: string) => {
+    if (!caseItem) return;
+
+    try {
+      // ✅ 1. อัปเดตเคสเดิม → เป็น "เลื่อนวัน"
+      await fetch("/api/cases", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...caseItem,
+          status: "เลื่อนวัน",
+          actionBy: currentUser?.name || currentUser?.empId || "TV Update",
+        }),
+      });
+
+      // ✅ 2. ถ้ามีวันใหม่ → สร้างเคสใหม่
+      if (newDate) {
+        const [year, month, day] = newDate.split("-");
+
+        const newCase = {
+          ...caseItem,
+          date: parseInt(day),
+          monthYear: `${year}-${month}`,
+          status: "", // หรือ "ยืนยัน"
+          actionBy: currentUser?.name || currentUser?.empId || "TV Update",
+        };
+
+        delete newCase._id; // ❗ สำคัญ
+
+        await fetch("/api/cases", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newCase),
+        });
+      }
+
+      fetchCases();
+
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return {
     handleSave,
     handleDeleteCase,
     handleUpdatePatientStatus,
+    handleUpdateCaseStatus,
     handleSaveNurseForm,
+    handlePostponeCase
   };
 };

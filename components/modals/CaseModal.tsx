@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 export default function CaseModal({
     isOpen,
@@ -6,6 +7,7 @@ export default function CaseModal({
     formData,
     setFormData,
     handleChange,
+    handleDateChange,
     handleSave,
     editingCase,
     currentUser,
@@ -13,17 +15,40 @@ export default function CaseModal({
 }: any) {
 
     if (!isOpen) return null;
+    useEffect(() => {
+        const handleEsc = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                onClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleEsc);
+        return () => window.removeEventListener("keydown", handleEsc);
+    }, [onClose]);
 
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-2 md:p-4 overflow-y-auto">
-            <div className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-8 relative my-8 md:my-auto flex flex-col">
+        <div
+            onClick={onClose} // ✅ เพิ่มตรงนี้
+            className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-2 md:p-4 overflow-y-auto"
+        >
+            <div
+                onClick={(e) => e.stopPropagation()} // ✅ กัน event ทะลุ
+                className="bg-[#fdfbf2] border border-gray-200 rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-8 relative my-8 md:my-auto flex flex-col"
+            >
                 <h2 className="text-xl md:text-3xl font-black text-center mb-6 md:mb-8 bg-[#f3eff4] py-2 md:py-3 rounded-xl shadow-sm text-[#4a2b38] border border-gray-200">{editingCase ? 'แก้ไขข้อมูล' : 'เพิ่มข้อมูล'}</h2>
 
                 {/* 🚀 จัดเรียง Layout ของฟอร์มใหม่ทั้งหมด เพื่อความสมดุลและสวยงาม */}
                 <form onSubmit={handleSave} className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-4 md:gap-y-5">
 
                     {/* แถวที่ 1: วันที่ | เวลา */}
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input type="date" name="surgeryDate" value={formData.surgeryDate} onChange={handleChange} className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none" required /></div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4"><label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">วันที่ผ่าตัด</label><input
+                        type="date"
+                        name="surgeryDate"
+                        value={formData.surgeryDate}
+                        onChange={(e) => handleDateChange(e, editingCase)}
+                        className="border border-gray-300 p-2 w-full sm:flex-1 bg-white rounded-lg focus:ring-2 focus:ring-[#d4b4dd] outline-none"
+                        required
+                    /></div>
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
                         <label className="sm:w-32 sm:text-right font-bold text-gray-700 text-sm sm:text-base">เวลา / OR</label>
                         <div className="flex w-full sm:flex-1 gap-2 items-center">

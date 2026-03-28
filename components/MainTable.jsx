@@ -5,8 +5,32 @@ const MainTable = ({
   normThClass,
   handleOpenModal,
   renderStatusDot,
-  formatHN
+  formatHN,
+  handleQuickStatusUpdate,
+  setStatusUpdateCase,
+  setIsStatusModalOpen,
+  setIsPostponeModalOpen
 }) => {
+
+  const toggleStatus = (current, target) => {
+    // ❌ กดซ้ำ → ปิดสถานะ
+    if (current === target) return '';
+
+    // 🚨 ยกเลิก → ถามครั้งเดียวพอ แล้วจบเลย
+    if (target === 'ยกเลิก') {
+      const ok = confirm('⚠️ ต้องการ "ยกเลิกเคส" ใช่หรือไม่?');
+      return ok ? 'ยกเลิก' : current;
+    }
+
+    // 🔁 เปลี่ยนสถานะอื่น (เช่น ยืนยัน)
+    if (current && current !== target) {
+      const ok = confirm('ต้องการเปลี่ยนสถานะหรือไม่?');
+      if (!ok) return current;
+    }
+
+    return target;
+  };
+
   return (
     <>
       <div className="bg-white border border-gray-300 shadow-md min-h-0 flex flex-col overflow-x-auto rounded-b-xl w-full">
@@ -59,13 +83,40 @@ const MainTable = ({
                       : 'hover:bg-[#fdfaf2]'
                   }`}
               >
-                <td className="border-r border-gray-300 font-bold text-red-600 py-3">
+                <td
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQuickStatusUpdate(c, toggleStatus(c.status, 'ยกเลิก'));
+                  }}
+                  className="border-r border-gray-300 font-bold text-red-600 py-3 cursor-pointer hover:bg-red-100"
+                >
                   {c.status === 'ยกเลิก' ? '✓' : ''}
                 </td>
-                <td className="border-r border-gray-300 font-bold text-yellow-600 py-3">
+
+                <td
+                  onClick={(e) => {
+                    e.stopPropagation();
+
+                    setStatusUpdateCase(c);
+
+                    if (c.status !== 'เลื่อนวัน') {
+                      setIsPostponeModalOpen(true);
+                    } else {
+                      handleQuickStatusUpdate(c, '');
+                    }
+                  }}
+                  className="border-r border-gray-300 font-bold text-yellow-600 py-3 cursor-pointer hover:bg-yellow-100"
+                >
                   {c.status === 'เลื่อนวัน' ? '✓' : ''}
                 </td>
-                <td className="border-r border-gray-300 font-bold text-green-600 py-3">
+
+                <td
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQuickStatusUpdate(c, toggleStatus(c.status, 'ยืนยัน'));
+                  }}
+                  className="border-r border-gray-300 font-bold text-green-600 py-3 cursor-pointer hover:bg-green-100"
+                >
                   {c.status === 'ยืนยัน' ? '✓' : ''}
                 </td>
                 <td className="border-r border-gray-300 py-3">{index + 1}</td>
@@ -77,7 +128,14 @@ const MainTable = ({
                     ? `OR ${c.room}`
                     : c.room}
                 </td>
-                <td className="border-r border-gray-300 py-3">
+                <td
+                  onClick={(e) => {
+                    e.stopPropagation(); // ❗ กันไม่ให้เปิด modal หลัก
+                    setStatusUpdateCase(c);
+                    setIsStatusModalOpen(true);
+                  }}
+                  className="border-r border-gray-300 py-3 cursor-pointer hover:bg-gray-100"
+                >
                   {renderStatusDot(c.patientStatus)}
                 </td>
                 <td className="border-r border-gray-300 text-left font-bold px-3 py-3">
@@ -121,7 +179,11 @@ const MainTable = ({
             ))}
 
             {[...Array(Math.max(0, 10 - displayCases.length))].map((_, i) => (
-              <tr key={i} className="border-b border-gray-300 bg-white h-12">
+              <tr
+                key={i}
+                onClick={() => handleOpenModal()} // ✅ เพิ่มตรงนี้
+                className="border-b border-gray-300 bg-white h-12 cursor-pointer hover:bg-[#fdfaf2]"
+              >
                 {[...Array(20)].map((_, j) => (
                   <td key={j} className="border-r border-gray-300"></td>
                 ))}

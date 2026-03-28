@@ -10,7 +10,7 @@ export default function StatusModal({
   if (!isOpen || !statusUpdateCase) return null;
 
   const handleClick = (status: string) => {
-    handleUpdatePatientStatus(status);
+    handleUpdatePatientStatus(statusUpdateCase, status);
     onClose(); // 🔥 ปิด modal อัตโนมัติหลังเลือก
   };
 

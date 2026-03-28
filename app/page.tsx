@@ -35,6 +35,8 @@ import StatusModal from "@/components/modals/StatusModal";
 import DashboardModal from "@/components/modals/DashboardModal";
 import AdminModal from "@/components/modals/AdminModal";
 import SearchModal from "@/components/modals/SearchModal";
+import PostponeModal from "@/components/modals/PostponeModal";
+
 import SpeedDial from "@/components/SpeedDial";
 import DateSelectorBar from "@/components/DateSelectorBar";
 import NurseTab from "@/components/NurseTab";
@@ -59,6 +61,7 @@ export default function ScheduleBoard() {
   const [isDashboardOpen, setIsDashboardOpen] = useState(false);
   const [editingCase, setEditingCase] = useState<any>(null);
   const [editingNurseLog, setEditingNurseLog] = useState<any>(null);
+  const [isPostponeModalOpen, setIsPostponeModalOpen] = useState(false);
 
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [statusUpdateCase, setStatusUpdateCase] = useState<any>(null);
@@ -113,6 +116,7 @@ export default function ScheduleBoard() {
     setFormData,
     handleOpenModal,
     handleChange,
+    handleDateChange,
     initialForm
   } = useCaseFormState(
     currentMonthYear,
@@ -140,7 +144,9 @@ export default function ScheduleBoard() {
     handleSave,
     handleDeleteCase,
     handleUpdatePatientStatus,
+    handleUpdateCaseStatus,
     handleSaveNurseForm,
+    handlePostponeCase
   } = useCaseActions({
     formData,
     editingCase,
@@ -156,6 +162,10 @@ export default function ScheduleBoard() {
     setStatusUpdateCase,
     setEditingNurseLog,
   });
+
+  const handleQuickStatusUpdate = (caseItem: any, status: string) => {
+    handleUpdateCaseStatus(caseItem, status);
+  };
 
   const {
     dashboardTab,
@@ -292,6 +302,10 @@ export default function ScheduleBoard() {
               handleOpenModal={handleOpenModal}
               renderStatusDot={renderStatusDot}
               formatHN={formatHN}
+              handleQuickStatusUpdate={handleQuickStatusUpdate}
+              setStatusUpdateCase={setStatusUpdateCase}
+              setIsStatusModalOpen={setIsStatusModalOpen}
+              setIsPostponeModalOpen={setIsPostponeModalOpen}
             />
           ) : (
             <NurseTab
@@ -334,6 +348,7 @@ export default function ScheduleBoard() {
           formData={formData}
           setFormData={setFormData}
           handleChange={handleChange}
+          handleDateChange={handleDateChange}
           handleSave={handleSave}
           editingCase={editingCase}
           currentUser={currentUser}
@@ -405,6 +420,15 @@ export default function ScheduleBoard() {
 
           handleOpenModal={handleOpenModal}
           formatHN={formatHN}
+        />
+      )}
+
+      {isPostponeModalOpen && statusUpdateCase && (
+        <PostponeModal
+          isOpen={isPostponeModalOpen}
+          onClose={() => setIsPostponeModalOpen(false)}
+          caseItem={statusUpdateCase}
+          onSubmit={handlePostponeCase}
         />
       )}
     </div>

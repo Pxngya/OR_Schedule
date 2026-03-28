@@ -78,11 +78,36 @@ export const useCaseFormState = (
     }));
   };
 
+  const handleDateChange = (e: any, editingCase: any) => {
+    const newDate = e.target.value;
+
+    if (editingCase && newDate !== editingCase.surgeryDate) {
+      const confirmPostpone = confirm(
+        'วันที่ผ่าตัดถูกเปลี่ยน ต้องการตั้งเป็น "เลื่อนวัน" หรือไม่?'
+      );
+
+      if (confirmPostpone) {
+        setFormData((prev: any) => ({
+          ...prev,
+          surgeryDate: newDate,
+          status: 'เลื่อนวัน'
+        }));
+        return;
+      }
+    }
+
+    setFormData((prev: any) => ({
+      ...prev,
+      surgeryDate: newDate
+    }));
+  };
+
   return {
     formData,
     setFormData,
     handleOpenModal,
     handleChange,
+    handleDateChange,
     initialForm
   };
 };
