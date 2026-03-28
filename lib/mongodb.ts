@@ -3,10 +3,9 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env.local');
+  throw new Error('❌ Please define MONGODB_URI in .env.local');
 }
 
-// Global caching เพื่อไม่ให้ Next.js สร้าง Connection ซ้ำซ้อนตอน Refresh
 let cached = (global as any).mongoose;
 
 if (!cached) {
@@ -14,17 +13,36 @@ if (!cached) {
 }
 
 async function connectToDatabase() {
-  if (cached.conn) {
+  try {
+    if (cached.conn) {
+      return cached.conn;
+    }
+
+    if (!cached.promise) {
+      const opts = {
+        bufferCommands: false,
+        serverSelectionTimeoutMS: 10000, // 🔥 กัน timeout
+      };
+
+      cached.promise = mongoose.connect(MONGODB_URI, opts)
+        .then((mongoose) => {
+          console.log('✅ MongoDB Connected');
+          return mongoose;
+        })
+        .catch((err) => {
+          console.error('❌ MongoDB Error:', err);
+          cached.promise = null;
+          throw err;
+        });
+    }
+
+    cached.conn = await cached.promise;
     return cached.conn;
+
+  } catch (error) {
+    console.error('❌ connectToDatabase fail:', error);
+    throw error;
   }
-  if (!cached.promise) {
-    const opts = { bufferCommands: false };
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
-      return mongoose;
-    });
-  }
-  cached.conn = await cached.promise;
-  return cached.conn;
 }
 
 export default connectToDatabase;

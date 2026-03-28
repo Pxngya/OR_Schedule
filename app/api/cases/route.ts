@@ -4,13 +4,14 @@ import Case from '@/models/Case';
 
 export const dynamic = 'force-dynamic';
 
+// ================= LINE =================
 async function sendLineMessage(textMessage: string) {
-  const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-  const groupId = process.env.LINE_GROUP_ID; 
-
-  if (!token || !groupId) return; 
-
   try {
+    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+    const groupId = process.env.LINE_GROUP_ID;
+
+    if (!token || !groupId) return;
+
     await fetch('https://api.line.me/v2/bot/message/push', {
       method: 'POST',
       headers: {
@@ -22,78 +23,128 @@ async function sendLineMessage(textMessage: string) {
         messages: [{ type: 'text', text: textMessage }]
       })
     });
+
   } catch (error) {
-    console.error('Line Bot Error:', error);
+    console.error('Line Error:', error);
   }
 }
 
+// ================= GET =================
 export async function GET(req: Request) {
-  await connectToDatabase();
-  const { searchParams } = new URL(req.url);
-  const date = searchParams.get('date');
-  const monthYear = searchParams.get('monthYear');
-  let query: any = {};
-  if (date && monthYear) {
-    query.date = parseInt(date);
-    query.monthYear = monthYear;
-  }
   try {
-    const cases = await Case.find(query);
+    await connectToDatabase();
+
+    const { searchParams } = new URL(req.url);
+    const date = searchParams.get('date');
+    const monthYear = searchParams.get('monthYear');
+
+    let query: any = {};
+
+    if (date && monthYear) {
+      query.date = parseInt(date);
+      query.monthYear = monthYear;
+    }
+
+    const cases = await Case.find(query).lean();
+
     return NextResponse.json({ success: true, data: cases });
-  } catch (error) {
-    return NextResponse.json({ success: false }, { status: 400 });
+
+  } catch (error: any) {
+    console.error('GET ERROR:', error);
+
+    return NextResponse.json(
+      { success: false, message: error.message || 'Server error' },
+      { status: 500 }
+    );
   }
 }
 
+// ================= POST =================
 export async function POST(req: Request) {
-  await connectToDatabase();
   try {
+    await connectToDatabase();
+
     const body = await req.json();
-    const { actionBy, ...caseData } = body; 
+    const { actionBy, ...caseData } = body;
+
     const newCase = await Case.create(caseData);
-    
-    // ข้อความแบบคลีน ไม่มีอิโมติคอน
-    const msg = `[เพิ่มคิวผ่าตัดใหม่]\nผู้ทำรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\nวันที่: ${newCase.date} ${newCase.monthYear}\nเวลา: ${newCase.time} น.\nห้อง: ${newCase.room}\nคนไข้: ${newCase.name}\nOperation: ${newCase.operation}`;
-    await sendLineMessage(msg);
+
+    await sendLineMessage(
+      `[เพิ่มคิวผ่าตัด]\nผู้ทำรายการ: ${actionBy || '-'}\n\n${newCase.name}`
+    );
 
     return NextResponse.json({ success: true, data: newCase });
-  } catch (error) {
-    return NextResponse.json({ success: false }, { status: 400 });
+
+  } catch (error: any) {
+    console.error('POST ERROR:', error);
+
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
 }
 
+// ================= PUT =================
 export async function PUT(req: Request) {
-  await connectToDatabase();
   try {
+    await connectToDatabase();
+
     const body = await req.json();
     const { _id, actionBy, ...updateData } = body;
-    const updatedCase = await Case.findByIdAndUpdate(_id, updateData, { new: true });
-    
-    const msg = `[อัปเดตข้อมูลคิว]\nผู้ทำรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\nคนไข้: ${updatedCase.name}\nเวลา: ${updatedCase.time} น. (ห้อง ${updatedCase.room})\nสถานะ: ${updatedCase.status}`;
-    await sendLineMessage(msg);
+
+    const updatedCase = await Case.findByIdAndUpdate(
+      _id,
+      updateData,
+      { new: true }
+    );
+
+    if (!updatedCase) {
+      return NextResponse.json(
+        { success: false, message: 'Not found' },
+        { status: 404 }
+      );
+    }
+
+    await sendLineMessage(`[อัปเดต] ${updatedCase.name}`);
 
     return NextResponse.json({ success: true, data: updatedCase });
-  } catch (error) {
-    return NextResponse.json({ success: false }, { status: 400 });
+
+  } catch (error: any) {
+    console.error('PUT ERROR:', error);
+
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
 }
 
+// ================= DELETE =================
 export async function DELETE(req: Request) {
-  await connectToDatabase();
   try {
+    await connectToDatabase();
+
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
-    const actionBy = searchParams.get('actionBy');
-    const patientName = searchParams.get('name');
-    
-    if (!id) return NextResponse.json({ success: false, message: 'Missing ID' }, { status: 400 });
+
+    if (!id) {
+      return NextResponse.json(
+        { success: false, message: 'Missing ID' },
+        { status: 400 }
+      );
+    }
+
     await Case.findByIdAndDelete(id);
 
-    const msg = `[ลบรายการผ่าตัด]\nผู้ลบรายการ: ${actionBy || 'ไม่ระบุชื่อ'}\n\nลบข้อมูลคนไข้ชื่อ: ${patientName || 'ไม่ทราบชื่อ'}`;
-    await sendLineMessage(msg);
+    return NextResponse.json({ success: true });
 
-    return NextResponse.json({ success: true, message: 'Deleted successfully' });
-  } catch (error) {
-    return NextResponse.json({ success: false }, { status: 400 });
+  } catch (error: any) {
+    console.error('DELETE ERROR:', error);
+
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
   }
 }
