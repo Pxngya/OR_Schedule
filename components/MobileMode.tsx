@@ -89,14 +89,14 @@ export default function MobileMode({
   };
 
   return (
-    <div className="min-h-screen bg-[#f9f6f7] pb-4">
+    <div className="h-screen overflow-y-auto bg-[#f9f6f7] pb-4">
 
       {/* 🔥 HEADER */}
       <div className="sticky top-0 z-20 bg-white border-b shadow-sm px-3 py-2 space-y-2">
 
         <div className="flex justify-between items-center">
           <div className="font-black text-[#4a2b38] text-sm">
-            แผนกผ่าตัด
+            แผนกผ่าตัด รพ.กรุงเทพอุดร
           </div>
           <div className="text-xs font-mono text-gray-500">
             {time}
