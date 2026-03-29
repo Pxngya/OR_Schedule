@@ -6,6 +6,7 @@ type Props = {
 
   handleOpenDashboard: () => void;
   handleOpenNurseModal: (data: any) => void;
+  todaysNurseLog: any;
   handleOpenModal: (data: any) => void;
 };
 
@@ -15,6 +16,7 @@ export default function SpeedDial({
   handleOpenDashboard,
   handleOpenNurseModal,
   handleOpenModal,
+  todaysNurseLog,
 }: Props) {
   return (
     <div className="fixed bottom-6 md:bottom-10 right-4 md:right-10 z-50 flex flex-col items-end gap-3">
@@ -39,7 +41,8 @@ export default function SpeedDial({
           </button>
 
           <button
-            onClick={() => handleOpenNurseModal(null)}
+            onClick={() => handleOpenNurseModal(todaysNurseLog)}
+            // onClick={() => handleOpenNurseModal(null)}
             className="bg-[#ffdac1] hover:bg-[#facba8] text-[#4a2b38] px-6 py-3.5 rounded-full font-black shadow-[0_8px_15px_rgba(255,218,193,0.6)] transition-transform hover:scale-105 flex items-center gap-3 whitespace-nowrap"
           >
             On call

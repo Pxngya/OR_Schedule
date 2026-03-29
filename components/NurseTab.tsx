@@ -95,17 +95,17 @@ export default function NurseTab({
             </div>
           ))
         ) : (
-          <div className="p-10 md:p-16 text-center flex flex-col items-center justify-center gap-3">
+          <div
+            onClick={() => handleOpenNurseModal(null)}
+            className="p-10 md:p-16 text-center flex flex-col items-center justify-center gap-3 cursor-pointer hover:bg-[#fffaf5] transition"
+          >
             <span className="text-5xl">📋</span>
             <span className="text-gray-400 font-bold text-lg md:text-xl">
               ยังไม่มีข้อมูลตาราง On call ในวันนี้
             </span>
-            <button
-              onClick={() => handleOpenNurseModal(null)}
-              className="mt-2 bg-[#ffdac1] text-[#4a2b38] text-sm px-6 py-2 rounded-full font-bold hover:bg-[#facba8] shadow-sm transition-transform hover:scale-105"
-            >
-              เพิ่มข้อมูล On call
-            </button>
+            <span className="text-sm text-gray-400">
+              คลิกที่นี่เพื่อเพิ่มข้อมูล
+            </span>
           </div>
         )}
       </div>

@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 type Props = {
   isOpen: boolean;
@@ -57,12 +58,42 @@ export default function AdminModal({
   handleCancelEditEmp,
   handleDeleteEmployee,
 }: Props) {
+
+  const roleLabelMap: Record<string, string> = {
+    admin: 'แอดมิน',
+    user: 'พนักงาน',
+    viewer: 'ผู้ดูข้อมูล',
+  };
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        setEmpSearchQuery('');
+      }
+    };
+
+    document.addEventListener("keydown", handleEsc);
+
+    return () => {
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [onClose, setEmpSearchQuery]);
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-start md:items-center justify-center z-[300] p-4 backdrop-blur-sm overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-4 md:p-8 relative flex flex-col my-8 md:my-auto">
-        
+    <div
+      className="fixed inset-0 bg-black/60 flex items-start md:items-center justify-center z-[300] p-4 backdrop-blur-sm overflow-y-auto"
+      onClick={() => {
+        onClose();
+        setEmpSearchQuery('');
+      }}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl p-4 md:p-8 relative flex flex-col my-8 md:my-auto"
+        onClick={(e) => e.stopPropagation()} // ❗ กันไม่ให้คลิกทะลุออกไป
+      >
+
         {/* Header */}
         <div className="flex justify-between items-center mb-4 md:mb-6 border-b pb-4">
           <h2 className="text-xl md:text-2xl font-bold text-[#4a2b38]">
@@ -90,11 +121,10 @@ export default function AdminModal({
             onChange={(e) => setNewEmpId(e.target.value)}
             disabled={isEditingEmp}
             placeholder="รหัสพนักงาน"
-            className={`w-full sm:w-[140px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${
-              isEditingEmp
-                ? 'bg-gray-200 cursor-not-allowed text-gray-500'
-                : 'bg-white'
-            }`}
+            className={`w-full sm:w-[140px] text-center font-mono font-bold border p-2 rounded-lg outline-none focus:ring-2 focus:ring-[#d4b4dd] ${isEditingEmp
+              ? 'bg-gray-200 cursor-not-allowed text-gray-500'
+              : 'bg-white'
+              }`}
             required
           />
 
@@ -114,6 +144,7 @@ export default function AdminModal({
           >
             <option value="user">พนักงาน</option>
             <option value="admin">แอดมิน</option>
+            <option value="viewer">ผู้ดูข้อมูล</option>
           </select>
 
           <div className="flex gap-2 w-full sm:w-auto justify-end mt-2 sm:mt-0">
@@ -172,11 +203,10 @@ export default function AdminModal({
                 filteredEmployees.map((emp) => (
                   <tr
                     key={emp._id}
-                    className={`border-b border-gray-100 transition-colors ${
-                      editingEmpDbId === emp._id
-                        ? 'bg-[#f4ebf7] border-l-4 border-l-[#b88bc9]'
-                        : 'hover:bg-[#fdfbf2]'
-                    }`}
+                    className={`border-b border-gray-100 transition-colors ${editingEmpDbId === emp._id
+                      ? 'bg-[#f4ebf7] border-l-4 border-l-[#b88bc9]'
+                      : 'hover:bg-[#fdfbf2]'
+                      }`}
                   >
                     <td className="p-3 font-bold font-mono">{emp.empId}</td>
 
@@ -186,13 +216,12 @@ export default function AdminModal({
 
                     <td className="p-3">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-bold ${
-                          emp.role === 'admin'
-                            ? 'bg-[#d4b4dd] text-[#4a2b38]'
-                            : 'bg-gray-100 text-gray-600'
-                        }`}
+                        className={`px-2 py-1 rounded-full text-xs font-bold ${emp.role === 'admin'
+                          ? 'bg-[#d4b4dd] text-[#4a2b38]'
+                          : 'bg-gray-100 text-gray-600'
+                          }`}
                       >
-                        {emp.role}
+                        {roleLabelMap[emp.role] || emp.role}
                       </span>
                     </td>
 

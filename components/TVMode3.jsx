@@ -175,67 +175,40 @@ export default function TVMode(props) {
                         })}
                     </div>
                     <div className="flex-1 bg-[#fffaf5] border border-[#facba8] rounded-xl shadow-sm p-3 flex flex-col justify-around min-h-0 overflow-y-auto hide-scrollbar">
-                        <div className="flex justify-between gap-6">
-
-                            {/* ✅ กลุ่มซ้าย */}
-                            <div className="flex flex-col gap-1 flex-1">
-
-                                <div className="flex items-start gap-2">
-                                    <span className="text-2xl lg:text-xs font-bold text-gray-500 w-8 shrink-0">Inc.</span>
-                                    <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                        {todaysNurseLog.inc || '-'}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-start gap-2">
-                                    <span className="text-2xl lg:text-xs font-bold text-gray-500 w-8 shrink-0">Call</span>
-                                    <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                        {todaysNurseLog.call || '-'}
-                                    </span>
-                                </div>
-
-                                {/* 👉 บ. + บ/ด อยู่บรรทัดเดียว */}
-                                <div className="flex items-start gap-4">
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ.</span>
-                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                            {todaysNurseLog.b || '-'}
-                                        </span>
-                                    </div>
-
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ/ด</span>
-                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                            {todaysNurseLog.bd || '-'}
-                                        </span>
-                                    </div>
-                                </div>
-
+                        <div className="flex items-start gap-2 mb-1">
+                            <span className="text-2xl lg:text-xs font-bold text-gray-500 w-8 shrink-0">Inc.</span>
+                            <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">{todaysNurseLog.inc || '-'}</span>
+                        </div>
+                        <div className="flex items-start gap-2 mb-1">
+                            <span className="text-2xl lg:text-xs font-bold text-gray-500 w-8 shrink-0">Call</span>
+                            <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">{todaysNurseLog.call || '-'}</span>
+                        </div>
+                        <div className="flex items-start gap-4">
+                            <div className="flex items-start gap-2 flex-1">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ.</span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">{todaysNurseLog.b || '-'}</span>
+                            </div>
+                            <div className="flex items-start gap-2 flex-1">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ/ด</span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">{todaysNurseLog.bd || '-'}</span>
+                            </div>
+                            <div className="flex items-start gap-2 mb-1">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
+                                    วิสัญญี (ใน)
+                                </span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">
+                                    {todaysNurseLog.anesthIn || '-'}
+                                </span>
                             </div>
 
-                            {/* ✅ กลุ่มขวา */}
-                            <div className="flex flex-col gap-1 items-start">
-
-                                <div className="flex items-start gap-2">
-                                    <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
-                                        วิสัญญี (ใน)
-                                    </span>
-                                    <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                        {todaysNurseLog.anesthIn || '-'}
-                                    </span>
-                                </div>
-
-                                <div className="flex items-start gap-2">
-                                    <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
-                                        วิสัญญี (นอก)
-                                    </span>
-                                    <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                        {todaysNurseLog.anesthOut || '-'}
-                                    </span>
-                                </div>
-
+                            <div className="flex items-start gap-2">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
+                                    วิสัญญี (นอก)
+                                </span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">
+                                    {todaysNurseLog.anesthOut || '-'}
+                                </span>
                             </div>
-
                         </div>
                     </div>
                 </div>

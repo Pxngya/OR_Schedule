@@ -1,6 +1,26 @@
 "use client";
 import { useState } from "react";
 
+const formatDateLocal = (date: Date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
+const parseLocalDate = (dateInput: any) => {
+  if (!dateInput) return new Date();
+
+  // 👉 ถ้าเป็น Date อยู่แล้ว
+  if (dateInput instanceof Date) return dateInput;
+
+  // 👉 ถ้าเป็น string ISO
+  const d = new Date(dateInput);
+
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+};
+
 export const useNurseFormState = (
   currentMonthYear: string,
   selectedDate: number,
@@ -21,24 +41,33 @@ export const useNurseFormState = (
 
   const [nurseFormData, setNurseFormData] = useState(initialNurseForm);
 
-  const handleOpenNurseModal = (logData: any = null) => {
-    setEditingNurseLog(logData);
+  const handleOpenNurseModal = (data: any) => {
+    const fullDate = new Date(
+      `${currentMonthYear}-${String(selectedDate).padStart(2, '0')}`
+    );
 
-    if (logData) {
+    const formattedDate = formatDateLocal(fullDate);
+
+    if (data) {
+      // 👉 edit mode (ใช้ date จาก "selectedDate" เท่านั้น)
+      setEditingNurseLog(data);
+
       setNurseFormData({
-        nurseDate: `${logData.monthYear}-${String(logData.date).padStart(2, '0')}`,
-        inc: logData.inc || '',
-        call: logData.call || '',
-        b: logData.b || '',
-        bd: logData.bd || '',
-        anesthIn: logData.anesthIn || '',
-        anesthOut: logData.anesthOut || '',
+        nurseDate: formattedDate, // 🔥 ใช้ตัวนี้แทน data.date
+        inc: data.inc || '',
+        call: data.call || '',
+        b: data.b || '',
+        bd: data.bd || '',
+        anesthIn: data.anesthIn || '',
+        anesthOut: data.anesthOut || '',
       });
     } else {
-      let defaultDateStr = `${currentMonthYear}-${String(selectedDate).padStart(2, '0')}`;
+      // 👉 create mode
+      setEditingNurseLog(null);
+
       setNurseFormData({
         ...initialNurseForm,
-        nurseDate: defaultDateStr
+        nurseDate: formattedDate, // 🔥 ใช้เหมือนกัน
       });
     }
 

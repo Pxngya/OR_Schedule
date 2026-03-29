@@ -262,6 +262,7 @@ export default function ScheduleBoard() {
           formatHN={formatHN}
           setStatusUpdateCase={setStatusUpdateCase}
           setIsStatusModalOpen={setIsStatusModalOpen}
+          currentUser={currentUser}
         />
       )}
 
@@ -327,6 +328,7 @@ export default function ScheduleBoard() {
           handleOpenDashboard={handleOpenDashboard}
           handleOpenNurseModal={handleOpenNurseModal}
           handleOpenModal={handleOpenModal}
+          todaysNurseLog={todaysNurseLog}
         />
       )}
 

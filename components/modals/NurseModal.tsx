@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 
 export default function NurseModal({
   isOpen,
@@ -9,11 +10,31 @@ export default function NurseModal({
   editingNurseLog,
 }: any) {
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto">
-      <div className="bg-white border border-[#facba8] rounded-2xl shadow-2xl w-full max-w-md p-6 relative flex flex-col my-8 md:my-auto">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-start md:items-center justify-center z-[200] backdrop-blur-sm p-4 overflow-y-auto"
+      onClick={onClose} // 👈 คลิกนอก = ปิด
+    >
+      <div
+        className="bg-white border border-[#facba8] rounded-2xl shadow-2xl w-full max-w-md p-6 relative flex flex-col my-8 md:my-auto"
+        onClick={(e) => e.stopPropagation()} // 👈 กัน event เด้งขึ้นไป
+      >
 
         <div className="absolute top-0 left-0 w-full h-3 bg-[#ffdac1] rounded-t-2xl"></div>
 
