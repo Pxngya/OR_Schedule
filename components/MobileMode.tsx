@@ -120,25 +120,29 @@ export default function MobileMode({
     if (caseTimeMins === null) return "";
 
     const diff = caseTimeMins - nowMins;
-
     const hasAction = status && status !== "Waiting";
 
+    // 🟡 ใกล้มาก (critical window)
     if (diff >= -15 && diff <= 15) {
-      return "bg-[#f3e8ff] text-[#7c3aed]";
+      return "bg-[#fef9c3] text-[#92400e]"; // yellow-100 + amber-800
     }
 
+    // 🟡 ใกล้เวลา
     if (diff >= -30 && diff < -15) {
-      return "bg-[#faf5ff] text-[#8b5cf6]";
+      return "bg-[#fefce8] text-[#a16207]"; // yellow-50 + amber-700
     }
 
+    // 🔴 เลท + ยังไม่มี action
     if (diff >= -60 && diff < -30 && !hasAction) {
       return "bg-[#fff1f2] text-[#e11d48]";
     }
 
+    // ⚪ เลทแต่มี action แล้ว
     if (diff >= -60 && diff < -30 && hasAction) {
       return "bg-gray-100 text-gray-500";
     }
 
+    // ⚪ เลทนาน
     if (diff < -60) {
       return "bg-gray-100 text-gray-400";
     }

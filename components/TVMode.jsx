@@ -21,40 +21,42 @@ export default function TVMode(props) {
         return h * 60 + m;
     };
 
-    const getTimeHighlight = (caseTimeMins, nowMins, status) => {
-        if (caseTimeMins === null) return '';
+    const getTimeHighlight = (
+        caseTimeMins,
+        nowMins,
+        status
+    ) => {
+        if (caseTimeMins === null) return "";
 
         const diff = caseTimeMins - nowMins;
+        const hasAction = status && status !== "Waiting";
 
-        // 👉 ถ้ามี action แล้ว → ไม่ต้องแดง
-        const hasAction = status && status !== 'Waiting';
-
-        // 🔥 ใกล้มาก
+        // 🟡 ใกล้มาก (critical window)
         if (diff >= -15 && diff <= 15) {
-            return 'bg-[#f3e8ff] border-l-4 border-[#b88bc9]';
+            return "bg-[#fef9c3] text-[#92400e]"; // yellow-100 + amber-800
         }
 
-        // 🟣 ใกล้เวลา
+        // 🟡 ใกล้เวลา
         if (diff >= -30 && diff < -15) {
-            return 'bg-[#faf5ff] border-l-4 border-[#d8b4fe]';
+            return "bg-[#fefce8] text-[#a16207]"; // yellow-50 + amber-700
         }
 
         // 🔴 เลท + ยังไม่มี action
         if (diff >= -60 && diff < -30 && !hasAction) {
-            return 'bg-[#fff1f2] border-l-4 border-[#ff9a9e]';
+            return "bg-[#fff1f2] text-[#e11d48]";
         }
 
-        // ⚪ เลทแต่มี action แล้ว → เทา
+        // ⚪ เลทแต่มี action แล้ว
         if (diff >= -60 && diff < -30 && hasAction) {
-            return 'bg-gray-50 border-l-4 border-gray-300';
+            return "bg-gray-100 text-gray-500";
         }
 
-        // ⚪ เลทนาน → เทาทั้งหมด
+        // ⚪ เลทนาน
         if (diff < -60) {
-            return 'bg-gray-50 border-l-4 border-gray-300 text-gray-400';
+            return "bg-gray-100 text-gray-400";
         }
 
-        return '';
+        return "";
     };
 
 
