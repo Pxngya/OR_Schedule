@@ -105,13 +105,6 @@ export default function MobileMode({
     }
   };
 
-  const getCaseTimeInMins = (timeStr?: string): number | null => {
-    if (!timeStr || timeStr.toLowerCase() === "tf") return null;
-
-    const [h, m] = timeStr.split(":").map(Number);
-    return h * 60 + m;
-  };
-
   const getTimeHighlight = (
     caseTimeMins: number | null,
     nowMins: number,
@@ -124,23 +117,23 @@ export default function MobileMode({
     const hasAction = status && status !== "Waiting";
 
     if (diff >= -15 && diff <= 15) {
-      return "bg-[#f3e8ff] text-[#7c3aed]";
+      return "bg-[#f3e8ff]";
     }
 
     if (diff >= -30 && diff < -15) {
-      return "bg-[#faf5ff] text-[#8b5cf6]";
+      return "bg-[#faf5ff]";
     }
 
     if (diff >= -60 && diff < -30 && !hasAction) {
-      return "bg-[#fff1f2] text-[#e11d48]";
+      return "bg-[#fff1f2]";
     }
 
     if (diff >= -60 && diff < -30 && hasAction) {
-      return "bg-gray-100 text-gray-500";
+      return "bg-gray-50";
     }
 
     if (diff < -60) {
-      return "bg-gray-100 text-gray-400";
+      return "bg-gray-50 opacity-60";
     }
 
     return "";
@@ -253,77 +246,63 @@ export default function MobileMode({
 
       {/* 📋 LIST */}
       <div className="p-2 space-y-2">
-        {filteredCases.map((c, index) => {
-          const caseTimeMins = getCaseTimeInMins(c.time);
-          const highlightClass = getTimeHighlight(
-            caseTimeMins,
-            currentMinsFromMidnight,
-            c.patientStatus
-          );
-          const isPast = caseTimeMins !== null && (caseTimeMins - currentMinsFromMidnight) < -60;
-          return (
-            <div
-              key={c._id || index}
-              onClick={() => {
-                if (isViewer) return;
-                setStatusUpdateCase(c);
-                setIsStatusModalOpen(true);
-              }}
-              className={`rounded-xl shadow-sm border border-gray-200 border-l-[6px]
-  ${getBorderColor(c.patientStatus)}
-  p-3 space-y-2
-  ${isPast ? "opacity-60" : ""}
-  ${!isViewer ? "active:scale-[0.97] cursor-pointer" : "opacity-90 cursor-default"}
+        {filteredCases.map((c, index) => (
+          <div
+            key={c._id || index}
+            onClick={() => {
+              if (isViewer) return;
+              setStatusUpdateCase(c);
+              setIsStatusModalOpen(true);
+            }}
+            className={`bg-white rounded-xl shadow-sm border border-gray-200 border-l-[6px] ${getBorderColor(c.patientStatus)} p-3 space-y-2 
+${!isViewer ? "active:scale-[0.97] cursor-pointer" : "opacity-90 cursor-default"}
 `}
-            >
-              {/* TOP */}
-              <div className="flex justify-between">
-                <span className="font-black text-blue-700 text-sm">
-                  OR {c.room || "-"}
-                </span>
+          >
+            {/* TOP */}
+            <div className="flex justify-between">
 
-                <span
-                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded
-    ${highlightClass || "text-gray-400"}
-  `}
-                >
-                  🕒 {c.time || "-"}
-                </span>
-              </div>
+              <span className="font-black text-blue-700 text-sm">
+                OR {c.room || "-"}
+              </span>
+              <span className="text-[10px] text-gray-400">
+                🕒 {c.time || "-"}
+              </span>
 
-              {/* NAME + STATUS */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {renderStatusDot(c.patientStatus)}
-                  <span className="font-black text-[#4a2b38]">
-                    {c.name || "-"}
-                  </span>
-                </div>
-              </div>
 
-              {/* HN */}
-              <div className="text-xs text-gray-500 font-mono">
-                HN: {formatHN(c.hn)}
-              </div>
-
-              {/* OPERATION */}
-              <div className="bg-[#fdf7f9] rounded px-2 py-1 text-sm font-semibold">
-                {c.operation || "-"}
-              </div>
-
-              {/* SURGEON */}
-              <div className="flex justify-between text-xs text-gray-600">
-                <span>👨‍⚕️ {c.surgeon || "-"}</span>
-
-                {!isViewer && (
-                  <span className="text-[10px] text-gray-400">
-                    tap เพื่ออัปเดต
-                  </span>
-                )}
-              </div>
+              {/* {renderStatusDot(c.patientStatus)} */}
             </div>
-          );
-        })}
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {renderStatusDot(c.patientStatus)}
+                <span className="font-black text-[#4a2b38]">
+                  {c.name || "-"}
+                </span>
+              </div>
+
+              <span className="text-[10px] text-gray-400">
+                {/* 🕒 {c.time || "-"} */}
+              </span>
+            </div>
+
+            <div className="text-xs text-gray-500 font-mono">
+              HN: {formatHN(c.hn)}
+            </div>
+
+            <div className="bg-[#fdf7f9] rounded px-2 py-1 text-sm font-semibold">
+              {c.operation || "-"}
+            </div>
+
+            <div className="flex justify-between text-xs text-gray-600">
+              <span>👨‍⚕️ {c.surgeon || "-"}</span>
+              {!isViewer && (
+                <span className="text-[10px] text-gray-400">
+                  tap เพื่ออัปเดต
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
 
         {filteredCases.length === 0 && (
           <div className="text-center text-gray-400 mt-10 text-sm">

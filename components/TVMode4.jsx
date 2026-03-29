@@ -21,42 +21,21 @@ export default function TVMode(props) {
         return h * 60 + m;
     };
 
-    const getTimeHighlight = (caseTimeMins, nowMins, status) => {
+    const getTimeHighlight = (caseTimeMins, nowMins) => {
         if (caseTimeMins === null) return '';
 
         const diff = caseTimeMins - nowMins;
 
-        // 👉 ถ้ามี action แล้ว → ไม่ต้องแดง
-        const hasAction = status && status !== 'Waiting';
-
-        // 🔥 ใกล้มาก
-        if (diff >= -15 && diff <= 15) {
-            return 'bg-[#f3e8ff] border-l-4 border-[#b88bc9]';
+        if (diff >= -30 && diff <= 30) {
+            return 'bg-yellow-100'; // ใกล้เวลา
         }
 
-        // 🟣 ใกล้เวลา
-        if (diff >= -30 && diff < -15) {
-            return 'bg-[#faf5ff] border-l-4 border-[#d8b4fe]';
-        }
-
-        // 🔴 เลท + ยังไม่มี action
-        if (diff >= -60 && diff < -30 && !hasAction) {
-            return 'bg-[#fff1f2] border-l-4 border-[#ff9a9e]';
-        }
-
-        // ⚪ เลทแต่มี action แล้ว → เทา
-        if (diff >= -60 && diff < -30 && hasAction) {
-            return 'bg-gray-50 border-l-4 border-gray-300';
-        }
-
-        // ⚪ เลทนาน → เทาทั้งหมด
-        if (diff < -60) {
-            return 'bg-gray-50 border-l-4 border-gray-300 text-gray-400';
+        if (diff < -30) {
+            return 'bg-red-100'; // เลทแล้ว
         }
 
         return '';
     };
-
 
     // 👉 TV / Desktop Mode
     const {
@@ -76,8 +55,7 @@ export default function TVMode(props) {
         renderStatusDot,
         formatHN,
         setStatusUpdateCase,
-        setIsStatusModalOpen,
-        currentMinsFromMidnight
+        setIsStatusModalOpen
     } = props;
 
     const today = new Date();
@@ -307,69 +285,21 @@ export default function TVMode(props) {
                             </tr>
                         </thead>
                         <tbody>
-                            {tvDisplayCases.map((c, index) => {
-                                const caseTimeMins = getCaseTimeInMins(c.time);
-                                const highlightClass = getTimeHighlight(
-                                    caseTimeMins,
-                                    currentMinsFromMidnight,
-                                    c.patientStatus
-                                );
-                                return (
-                                    <tr
-                                        key={c._id || index}
-                                        className={`border-b border-gray-200 hover:bg-[#fefafc] transition-colors cursor-pointer ${highlightClass}`}
-                                        onClick={() => {
-                                            if (isViewer) return;
-                                            setStatusUpdateCase(c);
-                                            setIsStatusModalOpen(true);
-                                        }}
-                                    >
-                                        <td className="border-r border-gray-200 font-black text-blue-700 text-2xl lg:text-base whitespace-nowrap py-3">
-                                            {c.room === 'นอกสถานที่' ? 'นอก' : c.room}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 font-black text-[#b88bc9] text-2xl lg:text-base whitespace-nowrap py-3">
-                                            {c.time === 'tf' || c.time === 'TF' ? 'TF' : c.time}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-center align-middle py-3">
-                                            {renderStatusDot(c.patientStatus)}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-left px-3 font-black text-base lg:text-lg break-words py-3 leading-snug">
-                                            {c.name}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 font-mono text-2xl lg:text-base whitespace-nowrap py-3">
-                                            {formatHN(c.hn)}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">
-                                            {c.specialEquipment}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-left text-2xl lg:text-sm px-3 break-words py-3 leading-snug">
-                                            {c.operation}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">
-                                            {c.surgeon}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">
-                                            {c.anesthesiologist}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">
-                                            {c.typeOfAnesth}
-                                        </td>
-
-                                        <td className="border-r border-gray-200 text-[#4a2b38] text-2xl lg:text-sm px-3 break-words py-3 leading-snug">
-                                            {c.team}
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {tvDisplayCases.map((c, index) => (
+                                <tr key={c._id || index} className="border-b border-gray-200 hover:bg-[#fefafc] transition-colors cursor-pointer" onClick={() => { if (isViewer) return; setStatusUpdateCase(c); setIsStatusModalOpen(true); }}>
+                                    <td className="border-r border-gray-200 font-black text-blue-700 text-2xl lg:text-base whitespace-nowrap py-3">{c.room === 'นอกสถานที่' ? 'นอก' : c.room}</td>
+                                    <td className="border-r border-gray-200 font-black text-[#b88bc9] text-2xl lg:text-base whitespace-nowrap py-3">{c.time === 'tf' || c.time === 'TF' ? 'TF' : c.time}</td>
+                                    <td className="border-r border-gray-200 text-center align-middle py-3">{renderStatusDot(c.patientStatus)}</td>
+                                    <td className="border-r border-gray-200 text-left px-3 font-black text-base lg:text-lg break-words py-3 leading-snug">{c.name}</td>
+                                    <td className="border-r border-gray-200 font-mono text-2xl lg:text-base whitespace-nowrap py-3">{formatHN(c.hn)}</td>
+                                    <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.specialEquipment}</td>
+                                    <td className="border-r border-gray-200 text-left text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.operation}</td>
+                                    <td className="border-r border-gray-200 text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.surgeon}</td>
+                                    <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">{c.anesthesiologist}</td>
+                                    <td className="border-r border-gray-200 text-2xl lg:text-sm px-2 whitespace-nowrap py-3">{c.typeOfAnesth}</td>
+                                    <td className="border-r border-gray-200 text-[#4a2b38] text-2xl lg:text-sm px-3 break-words py-3 leading-snug">{c.team}</td>
+                                </tr>
+                            ))}
                             {[...Array(Math.max(0, 10 - tvDisplayCases.length))].map((_, rowIndex) => (
                                 <tr key={`empty-${rowIndex}`} className="border-b border-gray-100 bg-white h-12 lg:h-14">
                                     {[...Array(11)].map((_, colIndex) => <td key={colIndex} className="border-r border-gray-100"></td>)}

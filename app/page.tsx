@@ -263,6 +263,7 @@ export default function ScheduleBoard() {
           setStatusUpdateCase={setStatusUpdateCase}
           setIsStatusModalOpen={setIsStatusModalOpen}
           currentUser={currentUser}
+          currentMinsFromMidnight={currentMinsFromMidnight}
         />
       )}
 

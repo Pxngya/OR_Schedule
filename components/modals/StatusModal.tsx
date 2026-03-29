@@ -10,8 +10,16 @@ export default function StatusModal({
   if (!isOpen || !statusUpdateCase) return null;
 
   const handleClick = (status: string) => {
+    const statusText = status || "เคลียร์สถานะ";
+
+    const isConfirm = window.confirm(
+      `ยืนยันการเปลี่ยนสถานะเป็น "${statusText}" ใช่หรือไม่?`
+    );
+
+    if (!isConfirm) return;
+
     handleUpdatePatientStatus(statusUpdateCase, status);
-    onClose(); // 🔥 ปิด modal อัตโนมัติหลังเลือก
+    onClose(); // ปิด modal หลัง confirm แล้ว
   };
 
   return (
