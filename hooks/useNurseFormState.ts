@@ -14,7 +14,9 @@ export const useNurseFormState = (
     inc: '',
     call: '',
     b: '',
-    bd: ''
+    bd: '',
+    anesthIn: '',
+    anesthOut: '',
   };
 
   const [nurseFormData, setNurseFormData] = useState(initialNurseForm);
@@ -28,7 +30,9 @@ export const useNurseFormState = (
         inc: logData.inc || '',
         call: logData.call || '',
         b: logData.b || '',
-        bd: logData.bd || ''
+        bd: logData.bd || '',
+        anesthIn: logData.anesthIn || '',
+        anesthOut: logData.anesthOut || '',
       });
     } else {
       let defaultDateStr = `${currentMonthYear}-${String(selectedDate).padStart(2, '0')}`;

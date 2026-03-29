@@ -79,6 +79,32 @@ export default function NurseModal({
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">
+              แพทย์ดมยา (ในเวลา)
+            </label>
+            <input
+              type="text"
+              name="anesthIn"
+              value={nurseFormData.anesthIn}
+              onChange={handleNurseChange}
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-1">
+              แพทย์ดมยา (นอกเวลา)
+            </label>
+            <input
+              type="text"
+              name="anesthOut"
+              value={nurseFormData.anesthOut}
+              onChange={handleNurseChange}
+              className="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-[#ffdac1] outline-none"
+            />
+          </div>
+
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               type="submit"

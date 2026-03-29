@@ -293,6 +293,8 @@ export default function ScheduleBoard() {
             daysInMonth={daysInMonth}
             selectedDate={selectedDate}
             setSelectedDate={setSelectedDate}
+            setCurrentMonthYear={setCurrentMonthYear}
+            currentMonthYear={currentMonthYear}
           />
 
           {activeTab === 'main' ? (

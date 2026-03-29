@@ -20,7 +20,7 @@ const CaseSchema = new mongoose.Schema({
   receiver: String,
   remarks: String,
   status: { type: String, default: '' },
-  
+
   // 🚀 ฟิลด์ใหม่ที่เพิ่งเพิ่มเข้ามา (สำคัญมาก!)
   patientStatus: { type: String, default: '' }, // เก็บสถานะจุดสี In OR, Recovery
   isNurseLog: { type: Boolean, default: false }, // ตัวแยกสมุดพยาบาล
@@ -28,7 +28,9 @@ const CaseSchema = new mongoose.Schema({
   call: { type: String, default: '' },
   b: { type: String, default: '' },
   bd: { type: String, default: '' },
-  
+  anesthIn: { type: String, default: '' },
+  anesthOut: { type: String, default: '' },
+
 }, { timestamps: true });
 
 export default mongoose.models.Case || mongoose.model('Case', CaseSchema);

@@ -56,8 +56,27 @@ export default function NurseTab({
                       {log.bd || "-"}
                     </td>
                   </tr>
+                  <tr className="border-b border-gray-100">
+                    <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">
+                      วิสัญญี (ใน)
+                    </th>
+                    <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">
+                      {log.anesthIn || "-"}
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <th className="bg-[#fffaf5] p-3 md:p-4 text-[#4a2b38] w-1/3 border-r border-gray-100 text-right pr-6 md:pr-8">
+                      วิสัญญี (นอก)
+                    </th>
+                    <td className="p-3 md:p-4 font-black text-[#4a2b38] pl-6 md:pl-8">
+                      {log.anesthOut || "-"}
+                    </td>
+                  </tr>
                 </tbody>
               </table>
+
+
 
               <div className="bg-gray-50 p-2 md:p-3 flex justify-between items-center border-t border-gray-200">
                 <span className="text-xs text-gray-500 font-bold ml-2 md:ml-4">

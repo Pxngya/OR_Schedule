@@ -196,6 +196,8 @@ export const useCaseActions = ({
         call: nurseFormData.call,
         b: nurseFormData.b,
         bd: nurseFormData.bd,
+        anesthIn: nurseFormData.anesthIn,
+        anesthOut: nurseFormData.anesthOut,
         isNurseLog: true,
         actionBy: currentUser.name || currentUser.empId,
       };

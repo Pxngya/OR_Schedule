@@ -32,6 +32,11 @@ export default function TVMode(props) {
         setIsStatusModalOpen
     } = props;
 
+    const today = new Date();
+    const isToday =
+        selectedDate === today.getDate() &&
+        currentMonthYear === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
     return (
         <>
             <div className="flex justify-between items-center shrink-0 h-[5vh] px-2 mt-1">
@@ -86,6 +91,21 @@ export default function TVMode(props) {
                             }}
                             className="text-xs font-bold text-gray-500 bg-transparent border-none outline-none cursor-pointer"
                         />
+                        <button
+                            onClick={() => {
+                                const today = new Date();
+                                const day = today.getDate();
+                                const monthYear = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+                                setSelectedDate(day);
+                                setCurrentMonthYear(monthYear);
+                            }}
+                            className={`text-[10px] font-bold px-1 transition-colors
+  ${isToday ? 'text-[#b88bc9]' : 'text-gray-400 hover:text-[#b88bc9]'}
+`}
+                        >
+                            Today
+                        </button>
                         <span className="text-lg font-black text-[#4a2b38] font-mono tracking-widest">{currentTimeText}</span>
                     </div>
                     <button onClick={() => window.close()} className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm transition-colors cursor-pointer">❌ ปิด</button>
@@ -164,6 +184,23 @@ export default function TVMode(props) {
                             <div className="flex items-start gap-2 flex-1">
                                 <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ/ด</span>
                                 <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">{todaysNurseLog.bd || '-'}</span>
+                            </div>
+                            <div className="flex items-start gap-2 mb-1">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
+                                    วิสัญญี (ใน)
+                                </span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">
+                                    {todaysNurseLog.anesthIn || '-'}
+                                </span>
+                            </div>
+
+                            <div className="flex items-start gap-2">
+                                <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">
+                                    วิสัญญี (นอก)
+                                </span>
+                                <span className="text-2xl lg:text-base font-black text-[#4a2b38] break-words leading-tight">
+                                    {todaysNurseLog.anesthOut || '-'}
+                                </span>
                             </div>
                         </div>
                     </div>
