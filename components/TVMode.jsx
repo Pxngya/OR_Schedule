@@ -6,9 +6,12 @@ import MobileMode from "@/components/MobileMode";
 export default function TVMode(props) {
     const isMobile = useMediaQuery("(max-width: 768px)");
 
+    const { currentUser } = props;
+    const isViewer = currentUser?.role === "viewer";
+
     // 👉 Mobile Mode
     if (isMobile) {
-        return <MobileMode {...props} />;
+        return <MobileMode {...props} isViewer={isViewer} />; // ✅ syntax ถูก
     }
 
     // 👉 TV / Desktop Mode
@@ -36,9 +39,6 @@ export default function TVMode(props) {
     const isToday =
         selectedDate === today.getDate() &&
         currentMonthYear === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
-    const { currentUser } = props;
-    const isViewer = currentUser?.role === "viewer";
-
     return (
         <>
             <div className="flex justify-between items-center shrink-0 h-[5vh] px-2 mt-1">

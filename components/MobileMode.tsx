@@ -18,6 +18,8 @@ interface NurseLog {
   call?: string;
   b?: string;
   bd?: string;
+  anesthIn?: string;
+  anesthOut?: string;
 }
 
 interface MobileModeProps {
@@ -28,6 +30,7 @@ interface MobileModeProps {
   formatHN: (hn?: string) => string;
   setStatusUpdateCase: (c: Case) => void;
   setIsStatusModalOpen: (v: boolean) => void;
+  isViewer: boolean;
 }
 
 export default function MobileMode({
@@ -37,6 +40,7 @@ export default function MobileMode({
   formatHN,
   setStatusUpdateCase,
   setIsStatusModalOpen,
+  isViewer,
 }: MobileModeProps) {
   const [filter, setFilter] = useState<
     "ALL" | "In OR" | "Call" | "Recovery" | "Discharge"
@@ -151,7 +155,7 @@ export default function MobileMode({
 
       {/* 🏥 OR STATUS (เหมือน TV) */}
       <div className="p-2 grid grid-cols-3 gap-2">
-        {["1","2","3","4","5","6"].map(r => {
+        {["1", "2", "3", "4", "5", "6"].map(r => {
           const activeCase = tvDisplayCases.find(
             c => c.room === r && (c.patientStatus === "In OR" || c.patientStatus === "Call")
           );
@@ -161,8 +165,8 @@ export default function MobileMode({
               key={r}
               className={`rounded-xl border text-center p-2 shadow-sm
               ${activeCase
-                ? "bg-[#fff0f1] border-[#ff9a9e] text-[#b04a50]"
-                : "bg-white border-gray-200 text-gray-400"}
+                  ? "bg-[#fff0f1] border-[#ff9a9e] text-[#b04a50]"
+                  : "bg-white border-gray-200 text-gray-400"}
               `}
             >
               <div className="font-bold text-sm">OR {r}</div>
@@ -176,12 +180,21 @@ export default function MobileMode({
 
       {/* 📝 NURSE LOG */}
       <div className="mx-2 mb-2 bg-[#fffaf5] border border-[#facba8] rounded-xl p-3 text-xs font-bold text-[#4a2b38] space-y-1">
+
         <div>Inc: {todaysNurseLog?.inc || "-"}</div>
+
         <div>Call: {todaysNurseLog?.call || "-"}</div>
+
+        <div>วิสัญญี (ใน): {todaysNurseLog?.anesthIn || "-"}</div>
+
+        <div>วิสัญญี (นอก): {todaysNurseLog?.anesthOut || "-"}</div>
+
+        {/* 👉 แถวเดียว */}
         <div className="flex gap-4">
           <div>บ: {todaysNurseLog?.b || "-"}</div>
           <div>บ/ด: {todaysNurseLog?.bd || "-"}</div>
         </div>
+
       </div>
 
       {/* 📋 LIST */}
@@ -190,27 +203,39 @@ export default function MobileMode({
           <div
             key={c._id || index}
             onClick={() => {
+              if (isViewer) return;
               setStatusUpdateCase(c);
               setIsStatusModalOpen(true);
             }}
-            className={`bg-white rounded-xl shadow-sm border border-gray-200 border-l-[6px] ${getBorderColor(c.patientStatus)} p-3 space-y-2 active:scale-[0.97]`}
+            className={`bg-white rounded-xl shadow-sm border border-gray-200 border-l-[6px] ${getBorderColor(c.patientStatus)} p-3 space-y-2 
+${!isViewer ? "active:scale-[0.97] cursor-pointer" : "opacity-90 cursor-default"}
+`}
           >
             {/* TOP */}
             <div className="flex justify-between">
-              <div className="flex gap-2">
-                <span className="font-black text-blue-700 text-sm">
-                  OR {c.room || "-"}
-                </span>
-                <span className="text-[10px] text-gray-400">
-                  🕒 {c.time || "-"}
+
+              <span className="font-black text-blue-700 text-sm">
+                OR {c.room || "-"}
+              </span>
+              <span className="text-[10px] text-gray-400">
+                🕒 {c.time || "-"}
+              </span>
+
+
+              {/* {renderStatusDot(c.patientStatus)} */}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {renderStatusDot(c.patientStatus)}
+                <span className="font-black text-[#4a2b38]">
+                  {c.name || "-"}
                 </span>
               </div>
 
-              {renderStatusDot(c.patientStatus)}
-            </div>
-
-            <div className="font-black text-[#4a2b38]">
-              {c.name || "-"}
+              <span className="text-[10px] text-gray-400">
+                {/* 🕒 {c.time || "-"} */}
+              </span>
             </div>
 
             <div className="text-xs text-gray-500 font-mono">
@@ -223,9 +248,11 @@ export default function MobileMode({
 
             <div className="flex justify-between text-xs text-gray-600">
               <span>👨‍⚕️ {c.surgeon || "-"}</span>
-              <span className="text-[10px] text-gray-400">
-                tap เพื่ออัปเดต
-              </span>
+              {!isViewer && (
+                <span className="text-[10px] text-gray-400">
+                  tap เพื่ออัปเดต
+                </span>
+              )}
             </div>
           </div>
         ))}
