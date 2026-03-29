@@ -194,22 +194,7 @@ export default function TVMode(props) {
                                     </span>
                                 </div>
 
-                                {/* 👉 บ. + บ/ด อยู่บรรทัดเดียว */}
-                                <div className="flex items-start gap-4">
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ.</span>
-                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                            {todaysNurseLog.b || '-'}
-                                        </span>
-                                    </div>
 
-                                    <div className="flex items-start gap-2">
-                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ/ด</span>
-                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
-                                            {todaysNurseLog.bd || '-'}
-                                        </span>
-                                    </div>
-                                </div>
 
                             </div>
 
@@ -232,6 +217,23 @@ export default function TVMode(props) {
                                     <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
                                         {todaysNurseLog.anesthOut || '-'}
                                     </span>
+                                </div>
+
+                                {/* 👉 บ. + บ/ด อยู่บรรทัดเดียว */}
+                                <div className="flex items-start gap-4">
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ.</span>
+                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
+                                            {todaysNurseLog.b || '-'}
+                                        </span>
+                                    </div>
+
+                                    <div className="flex items-start gap-2">
+                                        <span className="text-2xl lg:text-xs font-bold text-gray-500 shrink-0">บ/ด</span>
+                                        <span className="text-2xl lg:text-base font-black text-[#4a2b38]">
+                                            {todaysNurseLog.bd || '-'}
+                                        </span>
+                                    </div>
                                 </div>
 
                             </div>
