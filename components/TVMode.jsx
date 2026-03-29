@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect } from "react";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import MobileMode from "@/components/MobileMode";
 
@@ -8,6 +8,18 @@ export default function TVMode(props) {
 
     const { currentUser } = props;
     const isViewer = currentUser?.role === "viewer";
+
+    useEffect(() => {
+        const setTitle = () => {
+            document.title = "Display - ตารางผ่าตัด โรงพยาบาลกรุงเทพอุดร";
+        };
+
+        setTitle();
+
+        const interval = setInterval(setTitle, 500); // กันโดน overwrite
+
+        return () => clearInterval(interval);
+    }, []);
 
     // 👉 Mobile Mode
     if (isMobile) {
@@ -81,6 +93,7 @@ export default function TVMode(props) {
         setIsStatusModalOpen,
         currentMinsFromMidnight
     } = props;
+
 
     const today = new Date();
     const isToday =
