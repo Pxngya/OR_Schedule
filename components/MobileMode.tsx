@@ -31,6 +31,8 @@ interface MobileModeProps {
   setStatusUpdateCase: (c: Case) => void;
   setIsStatusModalOpen: (v: boolean) => void;
   isViewer: boolean;
+  selectedDate: number;
+  currentMonthYear: string;
 }
 
 export default function MobileMode({
@@ -41,6 +43,8 @@ export default function MobileMode({
   setStatusUpdateCase,
   setIsStatusModalOpen,
   isViewer,
+  selectedDate,
+  currentMonthYear,
 }: MobileModeProps) {
   const [filter, setFilter] = useState<
     "ALL" | "In OR" | "Call" | "Recovery" | "Discharge"
@@ -48,6 +52,13 @@ export default function MobileMode({
 
   const [time, setTime] = useState("");
   const [currentMinsFromMidnight, setCurrentMinsFromMidnight] = useState(0);
+
+  const today = new Date();
+
+  const isToday =
+    selectedDate === today.getDate() &&
+    currentMonthYear ===
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
 
   useEffect(() => {
     const update = () => {
@@ -259,12 +270,17 @@ export default function MobileMode({
       <div className="p-2 space-y-2">
         {filteredCases.map((c, index) => {
           const caseTimeMins = getCaseTimeInMins(c.time);
-          const highlightClass = getTimeHighlight(
-            caseTimeMins,
-            currentMinsFromMidnight,
-            c.patientStatus
-          );
-          const isPast = caseTimeMins !== null && (caseTimeMins - currentMinsFromMidnight) < -60;
+          const highlightClass = isToday
+            ? getTimeHighlight(
+              caseTimeMins,
+              currentMinsFromMidnight,
+              c.patientStatus
+            )
+            : "";
+          const isPast =
+            isToday &&
+            caseTimeMins !== null &&
+            (caseTimeMins - currentMinsFromMidnight) < -60;
           return (
             <div
               key={c._id || index}

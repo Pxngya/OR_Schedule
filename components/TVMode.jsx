@@ -311,11 +311,13 @@ export default function TVMode(props) {
                         <tbody>
                             {tvDisplayCases.map((c, index) => {
                                 const caseTimeMins = getCaseTimeInMins(c.time);
-                                const highlightClass = getTimeHighlight(
-                                    caseTimeMins,
-                                    currentMinsFromMidnight,
-                                    c.patientStatus
-                                );
+                                const highlightClass = isToday
+                                    ? getTimeHighlight(
+                                        caseTimeMins,
+                                        currentMinsFromMidnight,
+                                        c.patientStatus
+                                    )
+                                    : "";
                                 return (
                                     <tr
                                         key={c._id || index}
