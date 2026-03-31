@@ -23,7 +23,7 @@ export default function TVMode(props) {
 
     // 👉 Mobile Mode
     if (isMobile) {
-        return <MobileMode {...props} isViewer={isViewer} />; // ✅ syntax ถูก
+        return <MobileMode {...props} isViewer={isViewer} />;
     }
 
     const getCaseTimeInMins = (timeStr) => {
@@ -91,7 +91,8 @@ export default function TVMode(props) {
         formatHN,
         setStatusUpdateCase,
         setIsStatusModalOpen,
-        currentMinsFromMidnight
+        currentMinsFromMidnight,
+        handleLogout, // 🚀 รับค่า handleLogout 
     } = props;
 
 
@@ -99,6 +100,7 @@ export default function TVMode(props) {
     const isToday =
         selectedDate === today.getDate() &&
         currentMonthYear === `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    
     return (
         <>
             <div className="flex justify-between items-center shrink-0 h-[5vh] px-2 mt-1">
@@ -164,17 +166,29 @@ export default function TVMode(props) {
                                     setSelectedDate(day);
                                     setCurrentMonthYear(monthYear);
                                 }}
-                                className={`text-[10px] font-bold px-1 transition-colors
-  ${isToday ? 'text-[#b88bc9]' : 'text-gray-400 hover:text-[#b88bc9]'}
-`}
+                                className={`text-[10px] font-bold px-1 transition-colors ${isToday ? 'text-[#b88bc9]' : 'text-gray-400 hover:text-[#b88bc9]'}`}
                             >
                                 Today
                             </button>
                         )}
                         <span className="text-lg font-black text-[#4a2b38] font-mono tracking-widest">{currentTimeText}</span>
                     </div>
+                    
+                    {/* 🚀 เปลี่ยนตรงนี้: สำหรับ Admin/User ให้พากลับไปหน้าแรก */}
                     {!isViewer && (
-                        <button onClick={() => window.close()} className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm transition-colors cursor-pointer">❌ ปิด</button>
+                        <button 
+                            onClick={() => window.location.href = '/'} 
+                            className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm transition-colors cursor-pointer"
+                        >
+                            ❌ ปิด
+                        </button>
+                    )}
+
+                    {/* 🚀 ปุ่ม Logout สำหรับ Viewer ยังอยู่ปกติครับ */}
+                    {isViewer && (
+                        <button onClick={handleLogout} className="bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-600 px-3 py-1 rounded-lg text-xs font-bold shadow-sm transition-colors cursor-pointer flex items-center gap-1">
+                           ออกระบบ
+                        </button>
                     )}
                 </div>
             </div>
@@ -225,7 +239,7 @@ export default function TVMode(props) {
                 <div className="w-[40%] flex flex-col gap-2 min-h-0">
                     <div className="flex-1 grid grid-cols-6 gap-1.5 min-h-0">
                         {['1', '2', '3', '4', '5', '6'].map(r => {
-                            const activeCase = tvDisplayCases.find(c => c.room === r && (c.patientStatus === 'In OR' || c.patientStatus === 'Call'));
+                            const activeCase = tvDisplayCases.find((c) => c.room === r && (c.patientStatus === 'In OR' || c.patientStatus === 'Call'));
                             return (
                                 <div key={r} className={`flex flex-col justify-center items-center text-center w-full rounded-xl border transition-colors shadow-sm min-h-0 ${activeCase ? 'bg-[#fff0f1] border-[#ff9a9e] text-[#b04a50]' : 'bg-white border-gray-200 text-gray-400'}`}>
                                     <div className="text-2xl font-bold opacity-80 uppercase w-full text-center">OR {r}</div>
@@ -334,9 +348,10 @@ export default function TVMode(props) {
                                 return (
                                     <tr
                                         key={c._id || index}
-                                        className={`border-b border-gray-200 hover:bg-[#fefafc] transition-colors cursor-pointer ${highlightClass}`}
+                                        className={`border-b border-gray-200 transition-colors ${highlightClass} ${!isViewer ? 'hover:bg-[#fefafc] cursor-pointer' : ''
+                                            }`}
                                         onClick={() => {
-                                            if (isViewer) return;
+                                            if (isViewer) return; // ดักไว้ปลอดภัย 100%
                                             setStatusUpdateCase(c);
                                             setIsStatusModalOpen(true);
                                         }}

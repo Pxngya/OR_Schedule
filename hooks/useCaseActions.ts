@@ -19,6 +19,22 @@ export const useCaseActions = ({
   setEditingNurseLog,
 }: any) => {
 
+  // 🚀 ฟังก์ชันช่วยสร้าง Format ข้อความ LINE ตามที่คุณ Pxngya ต้องการเป๊ะๆ
+  const buildLineMessage = (actionType: string, caseData: any) => {
+    // ดึงวันที่ (ถ้าไม่มีใน surgeryDate ให้ประกอบจาก monthYear และ date)
+    let finalDate = caseData.surgeryDate;
+    if (!finalDate && caseData.monthYear && caseData.date) {
+      finalDate = `${caseData.monthYear}-${String(caseData.date).padStart(2, '0')}`;
+    }
+
+    const timeStr = caseData.time === "tf" || caseData.time === "TF" ? "TF" : caseData.time || "-";
+    const roomStr = caseData.room || "1";
+    const nameStr = caseData.name || "ไม่ระบุชื่อ";
+
+    // ใส่ \n ไว้ข้างหน้าสุด 1 ตัว เพื่อไม่ให้บรรทัดแรกไปติดกับชื่อบอท
+    return `\nผู้ทำรายการ ${actionType}\nวันที่ ${finalDate || "-"}\nเวลา ${timeStr} OR ${roomStr}\nคุณ ${nameStr}`;
+  };
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -38,6 +54,20 @@ export const useCaseActions = ({
         room: formData.room || "1",
         actionBy: currentUser.name || currentUser.empId,
       };
+
+      // 🎯 วิเคราะห์ว่าผู้ใช้กำลังทำ "แอคชั่น" อะไรอยู่
+      let currentAction = "เพิ่มรายการใหม่";
+      if (editingCase) {
+        if (formData.status === "ยืนยัน" && editingCase.status !== "ยืนยัน") {
+          currentAction = "สถานะเคสยืนยัน";
+        } else if (formData.status === "เลื่อนวัน" && editingCase.status !== "เลื่อนวัน") {
+          currentAction = "เลื่อนวัน";
+        } else if (formData.status === "ยกเลิก" && editingCase.status !== "ยกเลิก") {
+          currentAction = "ยกเลิก";
+        } else {
+          currentAction = "อัพเดทข้อมูลคนไข้";
+        }
+      }
 
       if (
         editingCase &&
@@ -69,9 +99,9 @@ export const useCaseActions = ({
           body: JSON.stringify(payloadNew),
         });
 
-        sendLineNotify(
-          `เลื่อนวันผ่าตัด: OR ${payloadData.room} | คุณ ${payloadData.name} | ย้ายไปวันที่ ${newDateNum} ${newMonthYear}`
-        );
+        // 🚀 ส่งแจ้งเตือน LINE เลื่อนวันผ่าตัด
+        sendLineNotify(buildLineMessage("เลื่อนวัน", payloadNew));
+
       } else {
         const payload: any = {
           ...payloadData,
@@ -89,18 +119,8 @@ export const useCaseActions = ({
           body: JSON.stringify(payload),
         });
 
-        if (method === "POST") {
-          sendLineNotify(
-            `🟢 เพิ่มคิวใหม่: OR ${payloadData.room} | เวลา ${payloadData.time || "TF"
-            } น. | คุณ ${payloadData.name}`
-          );
-        } else {
-          sendLineNotify(
-            `📝 อัปเดตคิว: OR ${payloadData.room} | เวลา ${payloadData.time || "TF"
-            } น. | คุณ ${payloadData.name} | สถานะ: ${payloadData.status || "รอระบุ"
-            }`
-          );
-        }
+        // 🚀 ส่งแจ้งเตือน LINE สำหรับเพิ่ม หรือ อัปเดตคิว
+        sendLineNotify(buildLineMessage(currentAction, payload));
       }
 
       setIsModalOpen(false);
@@ -137,7 +157,8 @@ export const useCaseActions = ({
 
       if (res.ok) {
         if (!isNurseLog && editingCase) {
-          sendLineNotify(`❌ ลบคิวผ่าตัด: คุณ ${editingCase.name}`);
+          // 🚀 ส่งแจ้งเตือน LINE ตอนลบข้อมูล
+          sendLineNotify(buildLineMessage("ลบข้อมูลคนไข้", editingCase));
         }
 
         setIsModalOpen(false);
@@ -174,10 +195,8 @@ export const useCaseActions = ({
 
       fetchCases();
 
-      sendLineNotify(
-        `อัปเดตสถานะ: คุณ ${payload.name} -> เปลี่ยนเป็น [ ${newStatus || "ว่าง"
-        } ]`
-      );
+      // 🚀 ส่งแจ้งเตือน LINE อัปเดตสถานะหน้าจอ TV
+      sendLineNotify(buildLineMessage(`เปลี่ยนสถานะเป็น [ ${newStatus || "ว่าง"} ]`, payload));
     } catch (error) {
       console.error("Error updating patient status:", error);
     }
@@ -242,9 +261,8 @@ export const useCaseActions = ({
 
       fetchCases();
 
-      sendLineNotify(
-        `อัปเดตสถานะคิว: คุณ ${payload.name} -> ${newStatus}`
-      );
+      // 🚀 ส่งแจ้งเตือน LINE สำหรับการ Quick Update Status
+      sendLineNotify(buildLineMessage(newStatus === "ยืนยัน" ? "สถานะเคสยืนยัน" : newStatus, payload));
     } catch (error) {
       console.error("Error updating case status:", error);
     }
@@ -284,6 +302,9 @@ export const useCaseActions = ({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(newCase),
         });
+
+        // 🚀 ส่งแจ้งเตือน LINE เลื่อนวัน (แบบ Quick Action)
+        sendLineNotify(buildLineMessage("เลื่อนวัน", newCase));
       }
 
       fetchCases();

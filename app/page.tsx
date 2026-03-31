@@ -42,6 +42,7 @@ import DateSelectorBar from "@/components/DateSelectorBar";
 import NurseTab from "@/components/NurseTab";
 
 import { tvThClass, normThClass, renderStatusDot } from "@/utils/uiHelpers";
+import { useSessionManager } from "@/hooks/useSessionManager";
 
 export default function ScheduleBoard() {
 
@@ -84,6 +85,13 @@ export default function ScheduleBoard() {
     handleLogout,
   } = useAuth();
 
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'viewer' && !isTVMode) {
+      alert('ไม่อนุญาตให้เข้าถึงหน้านี้ ระบบจะทำการออกจากระบบ');
+      handleLogout(); // เตะกลับไปหน้าล็อกอิน (เคลียร์ข้อมูลผู้ใช้ทิ้งทั้งหมด)
+    }
+  }, [currentUser, isTVMode, handleLogout]);
+  useSessionManager(currentUser, handleLogout, isTVMode);
   const daysInMonth = getDaysInMonth(currentMonthYear);
 
   const {
@@ -264,11 +272,12 @@ export default function ScheduleBoard() {
           setIsStatusModalOpen={setIsStatusModalOpen}
           currentUser={currentUser}
           currentMinsFromMidnight={currentMinsFromMidnight}
+          handleLogout={handleLogout}
         />
       )}
 
       {/* 💻 Web Mode */}
-      {!isTVMode && (
+      {!isTVMode && ( currentUser?.role !== 'viewer' &&
         <>
           <HeaderBar
             currentUser={currentUser}
