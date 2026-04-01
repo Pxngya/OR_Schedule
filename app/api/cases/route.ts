@@ -4,30 +4,7 @@ import Case from '@/models/Case';
 
 export const dynamic = 'force-dynamic';
 
-// ================= LINE =================
-async function sendLineMessage(textMessage: string) {
-  try {
-    const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-    const groupId = process.env.LINE_GROUP_ID;
-
-    if (!token || !groupId) return;
-
-    await fetch('https://api.line.me/v2/bot/message/push', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        to: groupId,
-        messages: [{ type: 'text', text: textMessage }]
-      })
-    });
-
-  } catch (error) {
-    console.error('Line Error:', error);
-  }
-}
+// ❌ ลบฟังก์ชัน sendLineMessage ออกไปแล้ว เพื่อให้ Frontend จัดการเรื่องแจ้งเตือนฝ่ายเดียว
 
 // ================= GET =================
 export async function GET(req: Request) {
@@ -69,9 +46,7 @@ export async function POST(req: Request) {
 
     const newCase = await Case.create(caseData);
 
-    await sendLineMessage(
-      `[เพิ่มคิวผ่าตัด]\nผู้ทำรายการ: ${actionBy || '-'}\n\n${newCase.name}`
-    );
+    // ❌ ลบคำสั่ง sendLineMessage ตรงนี้ออกแล้ว
 
     return NextResponse.json({ success: true, data: newCase });
 
@@ -106,7 +81,7 @@ export async function PUT(req: Request) {
       );
     }
 
-    await sendLineMessage(`[อัปเดต] ${updatedCase.name}`);
+    // ❌ ลบคำสั่ง sendLineMessage('[อัปเดต]...') ตรงนี้ออกแล้ว (ตัวการที่เด้งซ้อน)
 
     return NextResponse.json({ success: true, data: updatedCase });
 
