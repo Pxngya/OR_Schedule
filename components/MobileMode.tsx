@@ -289,7 +289,7 @@ export default function MobileMode({
                 setStatusUpdateCase(c);
                 setIsStatusModalOpen(true);
               }}
-              className={`rounded-xl shadow-sm border border-gray-200 border-l-[6px]
+              className={`rounded-xl shadow-sm border border-gray-200 border-l-[6px] bg-white
   ${getBorderColor(c.patientStatus)}
   p-3 space-y-2
   ${isPast ? "opacity-60" : ""}
