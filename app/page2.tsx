@@ -67,8 +67,6 @@ export default function ScheduleBoard() {
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
   const [statusUpdateCase, setStatusUpdateCase] = useState<any>(null);
 
-  const BLOCK_VIEWER = false;
-
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
@@ -88,15 +86,13 @@ export default function ScheduleBoard() {
   } = useAuth();
 
   useEffect(() => {
-    if (BLOCK_VIEWER && currentUser?.role === 'viewer' && !isTVMode) {
+    if (currentUser && currentUser.role === 'viewer' && !isTVMode) {
       alert('ไม่อนุญาตให้เข้าถึงหน้านี้ ระบบจะทำการออกจากระบบ');
-      handleLogout();
+      handleLogout(); // เตะกลับไปหน้าล็อกอิน (เคลียร์ข้อมูลผู้ใช้ทิ้งทั้งหมด)
     }
   }, [currentUser, isTVMode, handleLogout]);
   useSessionManager(currentUser, handleLogout, isTVMode);
   const daysInMonth = getDaysInMonth(currentMonthYear);
-
-  const isViewer = currentUser?.role === 'viewer';
 
   const {
     currentTimeText,
@@ -238,11 +234,6 @@ export default function ScheduleBoard() {
     filteredEmployees,
   } = useEmployeeState(currentUser, setCurrentUser);
 
-  const handleNavigateToDate = (date: number, monthYear: string) => {
-    setCurrentMonthYear(monthYear);
-    setSelectedDate(date);
-  };
-
   if (isCheckingSession) return null;
 
   if (!currentUser) {
@@ -286,7 +277,7 @@ export default function ScheduleBoard() {
       )}
 
       {/* 💻 Web Mode */}
-      {!isTVMode && (
+      {!isTVMode && ( currentUser?.role !== 'viewer' &&
         <>
           <HeaderBar
             currentUser={currentUser}
@@ -328,7 +319,6 @@ export default function ScheduleBoard() {
               setStatusUpdateCase={setStatusUpdateCase}
               setIsStatusModalOpen={setIsStatusModalOpen}
               setIsPostponeModalOpen={setIsPostponeModalOpen}
-              isViewer={currentUser?.role === 'viewer'}
             />
           ) : (
             <NurseTab
@@ -349,7 +339,6 @@ export default function ScheduleBoard() {
           handleOpenNurseModal={handleOpenNurseModal}
           handleOpenModal={handleOpenModal}
           todaysNurseLog={todaysNurseLog}
-          isViewer={currentUser?.role === 'viewer'}
         />
       )}
 
@@ -366,7 +355,7 @@ export default function ScheduleBoard() {
       )}
 
       {/* 🟢 Modal 1: ฟอร์มหลัก */}
-      {!isViewer && isModalOpen && (
+      {isModalOpen && (
         <CaseModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
@@ -382,7 +371,7 @@ export default function ScheduleBoard() {
       )}
 
       {/* 🟢 Modal 2: ฟอร์มตาราง On call (สมุดพยาบาล) */}
-      {!isViewer && isNurseModalOpen && (
+      {isNurseModalOpen && (
         <NurseModal
           isOpen={isNurseModalOpen}
           onClose={() => setIsNurseModalOpen(false)}
@@ -394,7 +383,7 @@ export default function ScheduleBoard() {
       )}
 
       {/* 🟢 Modal 3: Dashboard สรุปผล */}
-      {!isViewer && isDashboardOpen && (
+      {isDashboardOpen && (
         <DashboardModal
           isOpen={isDashboardOpen}
           onClose={() => setIsDashboardOpen(false)}
@@ -405,7 +394,7 @@ export default function ScheduleBoard() {
       )}
 
       {/* 🟢 Modal 5: ระบบ Admin */}
-      {!isViewer && isAdminModalOpen && (
+      {isAdminModalOpen && (
         <AdminModal
           isOpen={isAdminModalOpen}
           onClose={() => setIsAdminModalOpen(false)}
@@ -445,8 +434,6 @@ export default function ScheduleBoard() {
 
           handleOpenModal={handleOpenModal}
           formatHN={formatHN}
-          isViewer={currentUser?.role === 'viewer'}
-          onNavigateToDate={handleNavigateToDate}
         />
       )}
 

@@ -9,8 +9,6 @@ type Props = {
 
   handleOpenModal: (data: any) => void;
   formatHN: (hn: string) => string;
-  isViewer?: boolean;
-  onNavigateToDate?: (date: number, monthYear: string) => void;
 };
 
 export default function SearchModal({
@@ -20,17 +18,13 @@ export default function SearchModal({
   searchResults,
   handleOpenModal,
   formatHN,
-  isViewer = false,
-  onNavigateToDate,
 }: Props) {
   if (!isOpen) return null;
-
-  // const isViewer = currentUser?.role === 'viewer';
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-start md:items-center justify-center z-[300] p-4 backdrop-blur-sm overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-4 md:p-6 relative flex flex-col my-8 md:my-auto">
-
+        
         {/* Header */}
         <div className="flex justify-between items-center mb-4 border-b pb-4">
           <h2 className="text-lg md:text-2xl font-bold text-[#4a2b38] truncate pr-4">
@@ -47,7 +41,7 @@ export default function SearchModal({
         {/* Table */}
         <div className="overflow-x-auto border border-gray-200 rounded-xl shadow-inner bg-gray-50 flex-1 max-h-[60vh]">
           <table className="w-full text-xs md:text-sm text-center border-collapse min-w-[700px]">
-
+            
             <thead className="bg-[#b6d7d8] sticky top-0 shadow-sm z-10">
               <tr className="text-[#4a2b38]">
                 <th className="p-2 md:p-3 border border-gray-300">วันที่</th>
@@ -57,9 +51,6 @@ export default function SearchModal({
                 <th className="p-2 md:p-3 border border-gray-300 text-left">ชื่อ-สกุล</th>
                 <th className="p-2 md:p-3 border border-gray-300 text-left">Operation</th>
                 <th className="p-2 md:p-3 border border-gray-300">สถานะ</th>
-                {!isViewer && (
-                  <th className="p-2 md:p-3 border border-gray-300">จัดการ</th>
-                )}
               </tr>
             </thead>
 
@@ -68,15 +59,16 @@ export default function SearchModal({
                 searchResults.map((c, i) => (
                   <tr
                     key={i}
-                    className={`border-b border-gray-200 hover:bg-[#fdfbf2] cursor-pointer transition-colors ${c.status === 'ยกเลิก'
-                      ? 'bg-red-50'
-                      : c.status === 'เลื่อนวัน'
+                    className={`border-b border-gray-200 hover:bg-[#fdfbf2] cursor-pointer transition-colors ${
+                      c.status === 'ยกเลิก'
+                        ? 'bg-red-50'
+                        : c.status === 'เลื่อนวัน'
                         ? 'bg-yellow-50'
                         : 'bg-white'
-                      }`}
+                    }`}
                     onClick={() => {
                       onClose();
-                      onNavigateToDate?.(c.date, c.monthYear);
+                      handleOpenModal(c);
                     }}
                   >
                     <td className="p-2 md:p-3 border border-gray-200 font-bold text-gray-700 whitespace-nowrap">
@@ -104,31 +96,18 @@ export default function SearchModal({
                     </td>
 
                     <td
-                      className={`p-2 md:p-3 border border-gray-200 font-bold whitespace-nowrap ${c.status === 'ยืนยัน'
-                        ? 'text-green-600'
-                        : c.status === 'เลื่อนวัน'
+                      className={`p-2 md:p-3 border border-gray-200 font-bold whitespace-nowrap ${
+                        c.status === 'ยืนยัน'
+                          ? 'text-green-600'
+                          : c.status === 'เลื่อนวัน'
                           ? 'text-yellow-600'
                           : !c.status
-                            ? 'text-gray-400'
-                            : 'text-red-600'
-                        }`}
+                          ? 'text-gray-400'
+                          : 'text-red-600'
+                      }`}
                     >
                       • {c.status || 'รอระบุ'}
                     </td>
-                    {!isViewer && (
-                      <td className="p-2 md:p-3 border border-gray-200">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // ❗ สำคัญมาก กัน trigger row click
-                            onClose();
-                            handleOpenModal(c);
-                          }}
-                          className="px-3 py-1 bg-[#b88bc9] text-white rounded-lg text-xs hover:scale-105 transition"
-                        >
-                          ดู / แก้ไข
-                        </button>
-                      </td>
-                    )}
                   </tr>
                 ))
               ) : (
@@ -146,11 +125,9 @@ export default function SearchModal({
         </div>
 
         {/* Footer */}
-        {/* {!isViewer && (
-          <div className="mt-4 text-center text-xs md:text-sm text-gray-500 font-medium">
-            * คลิกที่รายชื่อเพื่อเปิดดู หรือแก้ไขรายละเอียดทั้งหมด
-          </div>
-        )} */}
+        <div className="mt-4 text-center text-xs md:text-sm text-gray-500 font-medium">
+          * คลิกที่รายชื่อเพื่อเปิดดู หรือแก้ไขรายละเอียดทั้งหมด
+        </div>
       </div>
     </div>
   );

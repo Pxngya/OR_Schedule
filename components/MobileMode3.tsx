@@ -11,12 +11,6 @@ interface Case {
   operation?: string;
   surgeon?: string;
   time?: string;
-
-  // ✅ เพิ่ม field (เหมือน TV)
-  specialEquipment?: string;
-  anesthesiologist?: string;
-  typeOfAnesth?: string;
-  team?: string;
 }
 
 interface NurseLog {
@@ -78,6 +72,7 @@ export default function MobileMode({
     return () => clearInterval(interval);
   }, []);
 
+  // ⏱ clock
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
@@ -93,16 +88,19 @@ export default function MobileMode({
     return () => clearInterval(interval);
   }, []);
 
+  // 📊 counts
   const inOrCount = tvDisplayCases.filter(c => c.patientStatus === "In OR").length;
   const callCount = tvDisplayCases.filter(c => c.patientStatus === "Call").length;
   const recoveryCount = tvDisplayCases.filter(c => c.patientStatus === "Recovery").length;
   const dischargeCount = tvDisplayCases.filter(c => c.patientStatus === "Discharge").length;
 
+  // 🔍 filter
   const filteredCases = useMemo(() => {
     if (filter === "ALL") return tvDisplayCases;
     return tvDisplayCases.filter(c => c.patientStatus === filter);
   }, [filter, tvDisplayCases]);
 
+  // 🎨 สี
   const getBorderColor = (status?: string) => {
     switch (status) {
       case "In OR":
@@ -120,6 +118,7 @@ export default function MobileMode({
 
   const getCaseTimeInMins = (timeStr?: string): number | null => {
     if (!timeStr || timeStr.toLowerCase() === "tf") return null;
+
     const [h, m] = timeStr.split(":").map(Number);
     return h * 60 + m;
   };
@@ -134,18 +133,27 @@ export default function MobileMode({
     const diff = caseTimeMins - nowMins;
     const hasAction = status && status !== "Waiting";
 
+    // 🟡 ใกล้มาก (critical window)
     if (diff >= -15 && diff <= 15) {
-      return "bg-[#fef9c3] text-[#92400e]";
+      return "bg-[#fef9c3] text-[#92400e]"; // yellow-100 + amber-800
     }
+
+    // 🟡 ใกล้เวลา
     if (diff >= -30 && diff < -15) {
-      return "bg-[#fefce8] text-[#a16207]";
+      return "bg-[#fefce8] text-[#a16207]"; // yellow-50 + amber-700
     }
+
+    // 🔴 เลท + ยังไม่มี action
     if (diff >= -60 && diff < -30 && !hasAction) {
       return "bg-[#fff1f2] text-[#e11d48]";
     }
+
+    // ⚪ เลทแต่มี action แล้ว
     if (diff >= -60 && diff < -30 && hasAction) {
       return "bg-gray-100 text-gray-500";
     }
+
+    // ⚪ เลทนาน
     if (diff < -60) {
       return "bg-gray-100 text-gray-400";
     }
@@ -156,7 +164,7 @@ export default function MobileMode({
   return (
     <div className="h-screen overflow-y-auto bg-[#f9f6f7] pb-4">
 
-      {/* HEADER */}
+      {/* 🔥 HEADER */}
       <div className="sticky top-0 z-20 bg-white border-b shadow-sm px-3 py-2 space-y-2">
 
         <div className="flex justify-between items-center">
@@ -168,26 +176,35 @@ export default function MobileMode({
           </div>
         </div>
 
+        {/* 📊 SUMMARY */}
         <div className="flex flex-wrap gap-3 text-xs font-bold">
-          <span className="text-gray-500">ทั้งหมด {tvDisplayCases.length}</span>
+
+          <span className="text-gray-500">
+            ทั้งหมด {tvDisplayCases.length}
+          </span>
+
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-[#ff9a9e] animate-pulse"></span>
             In OR {inOrCount}
           </span>
+
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-gray-500"></span>
             Call {callCount}
           </span>
+
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-[#f6d365]"></span>
             Recovery {recoveryCount}
           </span>
+
           <span className="flex items-center gap-1">
             <span className="w-2 h-2 rounded-full bg-[#84e3c8]"></span>
             Discharge {dischargeCount}
           </span>
         </div>
 
+        {/* 🎛 FILTER */}
         <div className="flex gap-2 overflow-x-auto">
           {["ALL", "In OR", "Call", "Recovery", "Discharge"].map((f) => (
             <button
@@ -205,7 +222,7 @@ export default function MobileMode({
         </div>
       </div>
 
-      {/* OR STATUS */}
+      {/* 🏥 OR STATUS (เหมือน TV) */}
       <div className="p-2 grid grid-cols-3 gap-2">
         {["1", "2", "3", "4", "5", "6"].map(r => {
           const activeCase = tvDisplayCases.find(
@@ -230,30 +247,40 @@ export default function MobileMode({
         })}
       </div>
 
-      {/* NURSE LOG */}
+      {/* 📝 NURSE LOG */}
       <div className="mx-2 mb-2 bg-[#fffaf5] border border-[#facba8] rounded-xl p-3 text-xs font-bold text-[#4a2b38] space-y-1">
+
         <div>Inc: {todaysNurseLog?.inc || "-"}</div>
+
         <div>Call: {todaysNurseLog?.call || "-"}</div>
+
         <div>วิสัญญี (ใน): {todaysNurseLog?.anesthIn || "-"}</div>
+
         <div>วิสัญญี (นอก): {todaysNurseLog?.anesthOut || "-"}</div>
+
+        {/* 👉 แถวเดียว */}
         <div className="flex gap-4">
           <div>บ: {todaysNurseLog?.b || "-"}</div>
           <div>บ/ด: {todaysNurseLog?.bd || "-"}</div>
         </div>
+
       </div>
 
-      {/* LIST */}
+      {/* 📋 LIST */}
       <div className="p-2 space-y-2">
         {filteredCases.map((c, index) => {
           const caseTimeMins = getCaseTimeInMins(c.time);
           const highlightClass = isToday
-            ? getTimeHighlight(caseTimeMins, currentMinsFromMidnight, c.patientStatus)
+            ? getTimeHighlight(
+              caseTimeMins,
+              currentMinsFromMidnight,
+              c.patientStatus
+            )
             : "";
           const isPast =
             isToday &&
             caseTimeMins !== null &&
             (caseTimeMins - currentMinsFromMidnight) < -60;
-
           return (
             <div
               key={c._id || index}
@@ -263,21 +290,28 @@ export default function MobileMode({
                 setIsStatusModalOpen(true);
               }}
               className={`rounded-xl shadow-sm border border-gray-200 border-l-[6px] bg-white
-              ${getBorderColor(c.patientStatus)}
-              p-3 space-y-2
-              ${isPast ? "opacity-60" : ""}
-              ${!isViewer ? "active:scale-[0.97] cursor-pointer" : "opacity-90 cursor-default"}
-              `}
+  ${getBorderColor(c.patientStatus)}
+  p-3 space-y-2
+  ${isPast ? "opacity-60" : ""}
+  ${!isViewer ? "active:scale-[0.97] cursor-pointer" : "opacity-90 cursor-default"}
+`}
             >
+              {/* TOP */}
               <div className="flex justify-between">
                 <span className="font-black text-blue-700 text-sm">
                   OR {c.room || "-"}
                 </span>
-                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${highlightClass || "text-gray-400"}`}>
+
+                <span
+                  className={`text-[10px] font-bold px-1.5 py-0.5 rounded
+    ${highlightClass || "text-gray-400"}
+  `}
+                >
                   🕒 {c.time || "-"}
                 </span>
               </div>
 
+              {/* NAME + STATUS */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {renderStatusDot(c.patientStatus)}
@@ -287,24 +321,20 @@ export default function MobileMode({
                 </div>
               </div>
 
+              {/* HN */}
               <div className="text-xs text-gray-500 font-mono">
                 HN: {formatHN(c.hn)}
               </div>
 
+              {/* OPERATION */}
               <div className="bg-[#fdf7f9] rounded px-2 py-1 text-sm font-semibold">
                 {c.operation || "-"}
               </div>
 
-              {/* ✅ เพิ่ม field ต่อท้ายของเดิม (ไม่ยุ่ง layout เดิม) */}
-              <div className="text-xs text-gray-600 space-y-1">
-                <div>👨‍⚕️ Surgeon: {c.surgeon || "-"}</div>
-                <div>🧑‍🤝‍🧑 Team: {c.team || "-"}</div>
-                <div>💉 Anesth: {c.anesthesiologist || "-"}</div>
-                <div>🛌 Type: {c.typeOfAnesth || "-"}</div>
-                <div>🧰 Equipment: {c.specialEquipment || "-"}</div>
-              </div>
-
+              {/* SURGEON */}
               <div className="flex justify-between text-xs text-gray-600">
+                <span>👨‍⚕️ {c.surgeon || "-"}</span>
+
                 {!isViewer && (
                   <span className="text-[10px] text-gray-400">
                     tap เพื่ออัปเดต

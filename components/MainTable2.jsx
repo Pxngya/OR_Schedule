@@ -9,8 +9,7 @@ const MainTable = ({
   handleQuickStatusUpdate,
   setStatusUpdateCase,
   setIsStatusModalOpen,
-  setIsPostponeModalOpen,
-  isViewer
+  setIsPostponeModalOpen
 }) => {
 
   const toggleStatus = (current, target) => {
@@ -74,10 +73,7 @@ const MainTable = ({
             {displayCases.map((c, index) => (
               <tr
                 key={c._id || index}
-                onClick={() => {
-                  if (isViewer) return; // ❌ viewer ห้ามกด
-                  handleOpenModal(c);
-                }}
+                onClick={() => handleOpenModal(c)}
                 className={`border-b border-gray-300 cursor-pointer ${c.status === 'ยกเลิก'
                   ? 'bg-red-50 opacity-50'
                   : c.status === 'เลื่อนวัน'
@@ -90,7 +86,6 @@ const MainTable = ({
                 <td
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (isViewer) return; // ❌ กัน viewer
                     handleQuickStatusUpdate(c, toggleStatus(c.status, 'ยกเลิก'));
                   }}
                   className="border-r border-gray-300 font-bold text-red-600 py-3 cursor-pointer hover:bg-red-100"
@@ -101,7 +96,7 @@ const MainTable = ({
                 <td
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (isViewer) return;
+
                     setStatusUpdateCase(c);
 
                     if (c.status !== 'เลื่อนวัน') {
@@ -118,7 +113,6 @@ const MainTable = ({
                 <td
                   onClick={(e) => {
                     e.stopPropagation();
-                    if (isViewer) return;
                     handleQuickStatusUpdate(c, toggleStatus(c.status, 'ยืนยัน'));
                   }}
                   className="border-r border-gray-300 font-bold text-green-600 py-3 cursor-pointer hover:bg-green-100"
@@ -137,7 +131,6 @@ const MainTable = ({
                 <td
                   onClick={(e) => {
                     e.stopPropagation(); // ❗ กันไม่ให้เปิด modal หลัก
-                    if (isViewer) return;
                     setStatusUpdateCase(c);
                     setIsStatusModalOpen(true);
                   }}
@@ -188,10 +181,7 @@ const MainTable = ({
             {[...Array(Math.max(0, 10 - displayCases.length))].map((_, i) => (
               <tr
                 key={i}
-                onClick={() => {
-                  if (isViewer) return;
-                  handleOpenModal();
-                }}
+                onClick={() => handleOpenModal()} // ✅ เพิ่มตรงนี้
                 className="border-b border-gray-300 bg-white h-12 cursor-pointer hover:bg-[#fdfaf2]"
               >
                 {[...Array(20)].map((_, j) => (
