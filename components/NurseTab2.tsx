@@ -5,14 +5,12 @@ type NurseTabProps = {
   nurseLogs: any[];
   handleOpenNurseModal: (log: any | null) => void;
   handleDeleteCase: (id: string, isNurse?: boolean) => void;
-  isViewer?: boolean;
 };
 
 export default function NurseTab({
   nurseLogs,
   handleOpenNurseModal,
   handleDeleteCase,
-  isViewer = false,
 }: NurseTabProps) {
   return (
     <div className="flex justify-center mt-2">
@@ -80,22 +78,20 @@ export default function NurseTab({
 
 
 
-              {!isViewer && (
-                <div className="bg-gray-50 p-2 md:p-3 flex justify-between items-center border-t border-gray-200">
-                  <span className="text-xs text-gray-500 font-bold ml-2 md:ml-4">
-                    * คลิกที่บริเวณตารางเพื่อแก้ไขข้อมูล
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteCase(log._id, true);
-                    }}
-                    className="text-red-500 hover:text-red-700 text-sm font-bold bg-red-100 hover:bg-red-200 px-4 py-1.5 rounded-lg shadow-sm transition-colors mr-2"
-                  >
-                    ลบข้อมูล
-                  </button>
-                </div>
-              )}
+              <div className="bg-gray-50 p-2 md:p-3 flex justify-between items-center border-t border-gray-200">
+                <span className="text-xs text-gray-500 font-bold ml-2 md:ml-4">
+                  * คลิกที่บริเวณตารางเพื่อแก้ไขข้อมูล
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteCase(log._id, true);
+                  }}
+                  className="text-red-500 hover:text-red-700 text-sm font-bold bg-red-100 hover:bg-red-200 px-4 py-1.5 rounded-lg shadow-sm transition-colors mr-2"
+                >
+                  ลบข้อมูล
+                </button>
+              </div>
             </div>
           ))
         ) : (

@@ -335,6 +335,7 @@ export default function ScheduleBoard() {
               nurseLogs={nurseLogs}
               handleOpenNurseModal={handleOpenNurseModal}
               handleDeleteCase={handleDeleteCase}
+              isViewer={currentUser?.role === 'viewer'}
             />
           )}
         </>
